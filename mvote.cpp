@@ -28,14 +28,26 @@ int main(int argc, char* args[]) {
 		return -1;
 	}
 
+	HashTable hashTable(100);
+
 	char firstName[30], lastName[30]; // Generous estimates as to how long the names can get, since we have no way of telling beforehand
 	int rin, zipCode;
 	while (fin >> rin >> firstName >> lastName >> zipCode) // Since the format of each line is the same, we can tell the program exactly what is what
 	{ // Got the idea to use this from the ifstream documentation: http://www.cplusplus.com/reference/istream/istream/operator%3E%3E/
 		bool voted = false;
 		Voter voter(rin, firstName, lastName, zipCode, voted);
-		cout << voter.getRIN() << '\n';
+		//voter.getVoterInfo();
+		bool insertSuccess = false;
+		hashTable.insert(rin, voter, insertSuccess);
 		//cout << rin << ' ' << firstName << ' ' << lastName << ' ' << zipCode << '\n';
+	}
+
+	while(true) {
+		int searchedRIN;
+		cout << "Enter RIN: ";
+		cin >> searchedRIN;
+		hashTable.lookup(searchedRIN);
+
 	}
 
 }
