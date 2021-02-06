@@ -9,20 +9,23 @@ using namespace std;
 
 int main(int argc, char* args[]) {
 
-	string inputFile = "";
+	char* inputFile;
+	inputFile = (char*)malloc(30*sizeof(char));
 	for(int i = 0; i < argc; i++) {
-		string param(args[i]);
-		if (param == "-f") {
-			string inputFileStr(args[i+1]); // Get the input file name
-			inputFile = inputFileStr; // Then take it out of the loop
+		cout << typeid(args[i]).name() << endl;
+		if (strcmp(args[i], "-f") == 0) { // Can't use a simple == operator as args[i] elements have the weird "Pc" type
+			cout << "In loop with " << args[i] << endl;
+			inputFile = args[i+1];
+			//strncpy(inputFile, args[i+1], sizeof(args[i+1])); // Get the input file name
 		}
 	}
 
-	if(inputFile == "") { // We need something to open!
+	if(inputFile == NULL) { // We need something to open!
 		cerr << "Please specify an input file." << endl;
 		return -1;
 	}
 
+	cout << inputFile << endl;
 	ifstream fin;
 	fin.open(inputFile);
 	if(!fin) { // Fallback in case we can't open the file for whatever reason
@@ -54,8 +57,6 @@ int main(int argc, char* args[]) {
 		bool insertSuccess = false;
 		hashTable.insert(rin, voter, insertSuccess);
 		//hashTable.scanTable();
-		cout << "Voter info: ";
-		voter.getVoterInfo();
 		//cout << rin << ' ' << firstName << ' ' << lastName << ' ' << zipCode << '\n';
 	}
 
@@ -68,5 +69,7 @@ int main(int argc, char* args[]) {
 		hashTable.lookup(searchedRIN);
 
 	}
+
+	return 0;
 
 }
