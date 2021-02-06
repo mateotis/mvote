@@ -37,6 +37,7 @@ class ZipLinkedList {
 		int getEntryNum();
 		bool findEntry(int zip);
 		bool insertEntry(int zip, Voter voter);
+		void printZipEntries(int zip);
 	private:
 		ZipLLNode* head;
 		int entryNum; // How many entries in the linked list

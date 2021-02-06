@@ -40,7 +40,6 @@ int main(int argc, char* args[]) {
 
 	char firstName[30], lastName[30]; // Generous estimates as to how long the names can get, since we have no way of telling beforehand
 	int rin, zipCode;
-	int zipAddCnt = 0;
 	while (fin >> rin >> firstName >> lastName >> zipCode) // Since the format of each line is the same, we can tell the program exactly what is what
 	{ // Got the idea to use this from the ifstream documentation: http://www.cplusplus.com/reference/istream/istream/operator%3E%3E/
 		bool voted = false;		
@@ -63,8 +62,6 @@ int main(int argc, char* args[]) {
 	}
 
 	hashTable.scanTable();
-	cout << "Added " << zipAddCnt << " entries to zip list." << endl;
-	zipList->displayAll();
 
 	while(true) {
 		int commandChoice;
@@ -140,6 +137,13 @@ int main(int argc, char* args[]) {
 
 		else if(commandChoice == 7) {
 			cout << hashTable.calcPercVoted() << " percent of voters in the hash table have voted." << endl;
+		}
+
+		else if(commandChoice == 8) {
+			int searchedZip;
+			cout << "Enter zip code: ";
+			cin >> searchedZip;
+			zipList->printZipEntries(searchedZip);
 		}
 
 	}

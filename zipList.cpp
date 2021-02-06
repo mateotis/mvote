@@ -76,3 +76,17 @@ bool ZipLinkedList::insertEntry(int zip, Voter voter) {
 	cout << "Insertion unsuccessful!" << endl;
 	return 0;	
 }
+
+void ZipLinkedList::printZipEntries(int zip) {
+	ZipLLNode* v = head;
+	while(v != NULL) {
+		if(v->zipCode == zip) {
+			v->value->displayAll();
+			return;
+		}
+
+		v = v->next;
+	}
+	cout << "No entries for this zip code." << endl;
+	return;
+}
