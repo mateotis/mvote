@@ -61,6 +61,18 @@ void HashLinkedList::findEntry(int rin, bool changingVote) {
 	return;	
 }
 
+Voter HashLinkedList::getVoter(int rin) {
+	LLNode* v = head;
+	while(v != NULL) {
+		if(v->voter.getRIN() == rin) {
+			cout << "getVoter() found the voter!" << endl;
+			return v->voter;	
+		}
+
+		v = v->next;
+	}
+}
+
 int HashLinkedList::getEntryNum() {
 	return entryNum;
 }
@@ -88,11 +100,6 @@ void HashTable::insert(const int key, Voter value, bool& insertSuccess) // Inser
 			cout << "Linked list in hash node " << hash << " has " << nodeArray[hash]->getListEntryNum() << " entries." << endl;
 			return;
 		}
-/*		else if(nodeArray[hash]->getKey() == key) { // If we run into an entry with the same key, then we don't need to add it again
-			cerr << key << " already in database." << endl;
-			cout << "Comparisons made in table: " << count << endl;
-			return;
-		}*/
 		else if(nodeArray[hash] != nullptr) {
 			nodeArray[hash]->insertVoter(value);
 			//cout << "Comparisons made in table: " << count << endl;
@@ -126,12 +133,6 @@ bool HashTable::lookup(const int key, bool changingVote) // Returns boolean whet
 			nodeArray[hash]->findVoter(key, changingVote);
 		}
 		return 1;
-/*		if(nodeArray[hash]->getKey() == key) {
-			cout << "Comparisons made in table: " << count << endl;
-			nodeArray[hash]->getVoterInfo();
-			cout << "Voter found!" << endl;
-			return;
-		}*/	
 	}
 	else {
 		cout << "Voter not found!" << endl;
@@ -139,4 +140,10 @@ bool HashTable::lookup(const int key, bool changingVote) // Returns boolean whet
 	}
 	cout << "Voter not found!" << endl;
 	return 0;
+}
+
+Voter HashTable::getVoter(const int rin) { // Gets a specific Voter object, needed (ironically) for zip code list handling
+	int hash = hashCode(rin);
+
+	return nodeArray[hash]->getVoter(rin);
 }

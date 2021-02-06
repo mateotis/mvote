@@ -60,16 +60,6 @@ int main(int argc, char* args[]) {
 
 		bool insertSuccess = false;
 		hashTable.insert(rin, voter, insertSuccess);
-		if(insertSuccess == true) { // Only insert zip if we could insert voter, this ensures synchronicity between the hashtable and the list
-			if(zipList->findEntry(zipCode) == 0) { // Look for the zip code first - if it's not in the list, add it and create a new embedded LL with the voter inside
-				zipList->addFront(zipCode, voter);
-				cout << "Added to zip list!" << endl;
-				zipAddCnt++;
-			}
-			else { // If the zip code is already present, insert the voter into the existing embedded LL
-				zipList->insertEntry(zipCode, voter); 
-			}
-		}
 	}
 
 	hashTable.scanTable();
@@ -128,6 +118,20 @@ int main(int argc, char* args[]) {
 			hashTable.lookup(searchedRIN, 1); // Finds the voter and changes its status to having voted
 			cout << "Voter status changed!" << endl;
 
+			Voter currentVoter = hashTable.getVoter(searchedRIN);
+			int currentZipCode = currentVoter.getZipCode();
+
+			if(zipList->findEntry(currentZipCode) == 0) { // Look for the zip code first - if it's not in the list, add it and create a new embedded LL with the voter inside
+					zipList->addFront(currentZipCode, currentVoter);
+					cout << "Added to zip list!" << endl;
+			}
+			else { // If the zip code is already present, insert the voter into the existing embedded LL
+				zipList->insertEntry(currentZipCode, currentVoter);
+				cout << "Added to zip list!" << endl;
+			}
+
+			cout << "Zip code list:" << endl;
+			zipList->displayAll();
 		}
 
 		else if(commandChoice == 6) {

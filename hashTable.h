@@ -30,6 +30,7 @@ class HashLinkedList {
 		void displayAll();
 		int getEntryNum();
 		void findEntry(int rin, bool changingVote);
+		Voter getVoter(int rin);
 	private:
 		LLNode* head;
 		int entryNum; // How many entries in the linked list
@@ -70,8 +71,8 @@ class HashNode
 		void findVoter(int rin, bool changingVote) {
 			this->value->findEntry(rin, changingVote);
 		}
-		void changeVoted(bool changeVoted) {
-
+		Voter getVoter(int rin) {
+			return this->value->getVoter(rin);
 		}
 /*		void getVoterInfo() {
 			cout << this->value.getRIN() << ' ' << this->value.getFirstName() << ' ' << this->value.getLastName() << ' ' << this->value.getZipCode() << '\n';
@@ -97,6 +98,7 @@ class HashTable
 		int hashCode(const int key);
 		void insert(const int key, Voter value, bool& insertSuccess);
 		bool lookup(const int key, bool changingVote);
+		Voter getVoter(const int rin);
 		//void remove(const int key);
 
 		int getSize()
