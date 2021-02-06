@@ -16,6 +16,7 @@ private:
 	LLNode* next;
 
 	friend class HashLinkedList;
+	friend class ZipVoterLinkedList;
 };
 
 class HashLinkedList {

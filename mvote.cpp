@@ -6,6 +6,7 @@
 
 #include "mvote.h"
 #include "hashTable.h"
+#include "zipList.h"
 
 using namespace std;
 
@@ -33,10 +34,13 @@ int main(int argc, char* args[]) {
 		return -1;
 	}
 
+	// Initialising our main data structures
 	HashTable hashTable(100);
+	ZipLinkedList* zipList = new ZipLinkedList();
 
 	char firstName[30], lastName[30]; // Generous estimates as to how long the names can get, since we have no way of telling beforehand
 	int rin, zipCode;
+	int zipAddCnt = 0;
 	while (fin >> rin >> firstName >> lastName >> zipCode) // Since the format of each line is the same, we can tell the program exactly what is what
 	{ // Got the idea to use this from the ifstream documentation: http://www.cplusplus.com/reference/istream/istream/operator%3E%3E/
 		bool voted = false;		
@@ -56,17 +60,21 @@ int main(int argc, char* args[]) {
 
 		bool insertSuccess = false;
 		hashTable.insert(rin, voter, insertSuccess);
+		if(insertSuccess == true) { // Only insert zip if we could insert voter, this ensures synchronicity between the hashtable and the list
+			if(zipList->findEntry(zipCode) == 0) { // Look for the zip code first - if it's not in the list, add it and create a new embedded LL with the voter inside
+				zipList->addFront(zipCode, voter);
+				cout << "Added to zip list!" << endl;
+				zipAddCnt++;
+			}
+			else { // If the zip code is already present, insert the voter into the existing embedded LL
+				zipList->insertEntry(zipCode, voter); 
+			}
+		}
 	}
 
 	hashTable.scanTable();
-
-/*	while(true) {
-		int searchedRIN;
-		cout << "Enter RIN: ";
-		cin >> searchedRIN;
-		hashTable.lookup(searchedRIN);
-
-	}*/
+	cout << "Added " << zipAddCnt << " entries to zip list." << endl;
+	zipList->displayAll();
 
 	while(true) {
 		int commandChoice;
@@ -118,8 +126,8 @@ int main(int argc, char* args[]) {
 			cout << "Enter RIN: ";
 			cin >> searchedRIN;
 			hashTable.lookup(searchedRIN, 1); // Finds the voter and changes its status to having voted
-
 			cout << "Voter status changed!" << endl;
+
 		}
 
 		else if(commandChoice == 6) {
