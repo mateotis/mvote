@@ -1,3 +1,5 @@
+// Defines the Voter class
+
 #ifndef MVOTE_H
 #define MVOTE_H
 

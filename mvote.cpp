@@ -1,3 +1,5 @@
+// Main file: takes command line arguments, parses files, processes user inputs
+
 #include<iostream>
 #include<fstream>
 #include<cstring> // For strcpy and strcmp; the actual string container is not used as per requirements
@@ -54,8 +56,6 @@ int main(int argc, char* args[]) {
 
 		bool insertSuccess = false;
 		hashTable.insert(rin, voter, insertSuccess);
-		//hashTable.scanTable();
-		//cout << rin << ' ' << firstName << ' ' << lastName << ' ' << zipCode << '\n';
 	}
 
 	hashTable.scanTable();
