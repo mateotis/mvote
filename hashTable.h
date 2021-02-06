@@ -26,7 +26,7 @@ class HashLinkedList {
 		void removeFront();
 		void displayAll();
 		int getEntryNum();
-		void findEntry(int rin);
+		void findEntry(int rin, bool changingVote);
 	private:
 		LLNode* head;
 		int entryNum; // How many entries in the linked list
@@ -69,12 +69,15 @@ void HashLinkedList::displayAll() {
 	}
 }
 
-void HashLinkedList::findEntry(int rin) {
+void HashLinkedList::findEntry(int rin, bool changingVote) {
 	LLNode* v = head;
 	while(v != NULL) {
 		if(v->voter.getRIN() == rin) {
 			cout << "Voter found in LL!" << endl;
 			v->voter.getVoterInfo();
+			if(changingVote == 1) {
+				v->voter.setVoted(1);
+			}
 			return;			
 		}
 
@@ -120,8 +123,11 @@ class HashNode
 		int getListEntryNum() {
 			return this->value->getEntryNum();
 		}
-		void findVoter(int rin) {
-			this->value->findEntry(rin);
+		void findVoter(int rin, bool changingVote) {
+			this->value->findEntry(rin, changingVote);
+		}
+		void changeVoted(bool changeVoted) {
+
 		}
 /*		void getVoterInfo() {
 			cout << this->value.getRIN() << ' ' << this->value.getFirstName() << ' ' << this->value.getLastName() << ' ' << this->value.getZipCode() << '\n';
@@ -145,7 +151,7 @@ class HashTable
 		} 
 		int hashCode(const int key);
 		void insert(const int key, Voter value, bool& insertSuccess);
-		void lookup(const int key);
+		bool lookup(const int key, bool changingVote);
 		//void remove(const int key);
 
 		int getSize()
@@ -222,7 +228,7 @@ void HashTable::insert(const int key, Voter value, bool& insertSuccess) // Inser
 
 }
 
-void HashTable::lookup(const int key)
+bool HashTable::lookup(const int key, bool changingVote) // Returns boolean whether the voter was found or not; also handles vote registering with another handy boolean
 {
 	int hash = hashCode(key);
 	cout << "Searching hash: " << hash << endl;
@@ -233,8 +239,13 @@ void HashTable::lookup(const int key)
 		cout << "Searching..." << endl;
 		cout << "Currently searched node: " << nodeArray[hash]->getKey() << endl;
 
-		nodeArray[hash]->findVoter(key);
-		return;
+		if(changingVote == 1) {
+			nodeArray[hash]->findVoter(key, changingVote);
+		}
+		else {
+			nodeArray[hash]->findVoter(key, changingVote);
+		}
+		return 1;
 /*		if(nodeArray[hash]->getKey() == key) {
 			cout << "Comparisons made in table: " << count << endl;
 			nodeArray[hash]->getVoterInfo();
@@ -244,10 +255,10 @@ void HashTable::lookup(const int key)
 	}
 	else {
 		cout << "Voter not found!" << endl;
-		return;
+		return 0;
 	}
 	cout << "Voter not found!" << endl;
-	return;
+	return 0;
 }
 
 #endif

@@ -1,6 +1,6 @@
 #include<iostream>
 #include<fstream>
-#include<cstring> // For strcpy; the actual string container is not used as per requirements
+#include<cstring> // For strcpy and strcmp; the actual string container is not used as per requirements
 
 #include "mvote.h"
 #include "hashTable.h"
@@ -62,13 +62,70 @@ int main(int argc, char* args[]) {
 
 	hashTable.scanTable();
 
-	while(true) {
+/*	while(true) {
 		int searchedRIN;
 		cout << "Enter RIN: ";
 		cin >> searchedRIN;
 		hashTable.lookup(searchedRIN);
 
+	}*/
+
+	while(true) {
+		int commandChoice;
+
+		cout << "What command? 1. is insertion, 2. is search. 4. is register." << endl;
+		cin >> commandChoice;
+
+		if (commandChoice == 1) {
+			char firstName[30], lastName[30];
+			int rin, zipCode;
+			bool voted = false;
+
+			cout << "Enter voter info: ";
+			cin >> rin >> firstName >> lastName >> zipCode;
+
+			char* firstName2;
+			char* lastName2;
+
+			firstName2 = (char*)malloc(30*sizeof(char));
+			lastName2 = (char*)malloc(30*sizeof(char));
+
+			strncpy(firstName2, firstName, sizeof(firstName2));
+			strncpy(lastName2, lastName, sizeof(lastName2));
+
+			cout << firstName2 << ' ' << lastName2 << endl;
+			Voter voter(rin, firstName2, lastName2, zipCode, voted);
+
+			bool insertSuccess = false;
+
+			if(hashTable.lookup(rin, 0) == 1) {
+				cerr << "Error: voter already in system." << endl;
+			}
+			else {
+				hashTable.insert(rin, voter, insertSuccess);	
+				cout << "Voter inserted!" << endl;				
+			}
+
+		}
+
+		else if(commandChoice == 2) {
+			int searchedRIN;
+			cout << "Enter RIN: ";
+			cin >> searchedRIN;
+			hashTable.lookup(searchedRIN, 0);	
+		}
+
+		else if(commandChoice == 4) {
+			int searchedRIN;
+			cout << "Enter RIN: ";
+			cin >> searchedRIN;
+			hashTable.lookup(searchedRIN, 1); // Finds the voter and changes its status to having voted
+
+			cout << "Voter status changed!" << endl;
+		}
+
 	}
+
 
 	return 0;
 

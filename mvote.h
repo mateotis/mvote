@@ -41,6 +41,11 @@ class Voter {
 			cout << this->getRIN() << ' ' << this->getFirstName() << ' ' << this->getLastName() << ' ' << this->getZipCode() << ' '<< this->getVoted() << '\n';
 			return;
 		}
+		void setVoted(bool votedChange) {
+			this->voted = votedChange;
+			return;
+		}
+
 /*		char* getVoterInfo() {
 			char voterInfo[30];
 			strcpy(voterInfo, to_string(rin).c_str()); // Workaround to transform an int to a char array without using the unsupported itoa()
