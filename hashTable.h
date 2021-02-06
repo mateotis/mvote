@@ -140,8 +140,9 @@ class HashTable
 {
 	private:
 		HashNode **nodeArray; // The container is an array of node pointers
-		int size;
-		int capacity;
+		int size; // How many voters there currently are in the table
+		int capacity; // Total capacity of table
+		int votedNum; // How many people have voted in the hashtable
 	public:
 		HashTable(int capacity)
 		{
@@ -159,7 +160,11 @@ class HashTable
 			return this->size;
 		}
 
-		void scanTable() {
+		int getVotedNum() {
+			return this->votedNum;
+		}
+
+		void scanTable() { // Goes over the entire table and prints every node; used for debugging
 			int cnt = 0;
 			for(int i = 0; i < capacity; i++) {
 				if(nodeArray[i] != nullptr) { // Finds every node
@@ -169,6 +174,13 @@ class HashTable
 			}
 			cout << "Scanned " << cnt << " nodes." << endl;
 			return;	
+		}
+
+		float calcPercVoted() { // Returns percentage of people who voted
+			if(votedNum != 0) { // Sanity check
+				return float(votedNum) / float(size) * 100.0;
+			}
+			return 0.0;
 		}
 
 		~HashTable() // Destructor, releases all dynamically allocated memory
@@ -241,6 +253,7 @@ bool HashTable::lookup(const int key, bool changingVote) // Returns boolean whet
 
 		if(changingVote == 1) {
 			nodeArray[hash]->findVoter(key, changingVote);
+			votedNum++;
 		}
 		else {
 			nodeArray[hash]->findVoter(key, changingVote);

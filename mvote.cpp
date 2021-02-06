@@ -14,9 +14,7 @@ int main(int argc, char* args[]) {
 	for(int i = 0; i < argc; i++) {
 		cout << typeid(args[i]).name() << endl;
 		if (strcmp(args[i], "-f") == 0) { // Can't use a simple == operator as args[i] elements have the weird "Pc" type
-			cout << "In loop with " << args[i] << endl;
 			inputFile = args[i+1];
-			//strncpy(inputFile, args[i+1], sizeof(args[i+1])); // Get the input file name
 		}
 	}
 
@@ -73,7 +71,7 @@ int main(int argc, char* args[]) {
 	while(true) {
 		int commandChoice;
 
-		cout << "What command? 1. is insertion, 2. is search. 4. is register." << endl;
+		cout << "What command? 1. is insertion, 2. is search. 4. is register, 6. is total voter number, 7. is voter percentage." << endl;
 		cin >> commandChoice;
 
 		if (commandChoice == 1) {
@@ -122,6 +120,14 @@ int main(int argc, char* args[]) {
 			hashTable.lookup(searchedRIN, 1); // Finds the voter and changes its status to having voted
 
 			cout << "Voter status changed!" << endl;
+		}
+
+		else if(commandChoice == 6) {
+			cout << hashTable.getVotedNum() << " people in the hash table have voted." << endl;
+		}
+
+		else if(commandChoice == 7) {
+			cout << hashTable.calcPercVoted() << " percent of voters in the hash table have voted." << endl;
 		}
 
 	}
