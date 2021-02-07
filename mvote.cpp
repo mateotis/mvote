@@ -95,8 +95,7 @@ int main(int argc, char* args[]) {
 		command = strtok(input, " ");
 		if(command == NULL) { // If at any point the next token is a null, it means we've reached the end of the input and we should stop tokenising and start executing
 			cerr << "Input cannot be empty." << endl;
-			//continue;
-			exit(-1);
+			continue;
 		}
 		cout << "Command: " << command << endl;
 
@@ -105,10 +104,10 @@ int main(int argc, char* args[]) {
 			if(strcmp(command, "exit") == 0) { // TO DO - release all memory before exiting
 				exit(0);
 			}
-			if(strcmp(command, "v") == 0) {
+			if(strcmp(command, "v") == 0) { // Display how many people in total have voted
 				cout << hashTable.getVotedNum() << " people in the hash table have voted." << endl;
 			}
-			else if(strcmp(command, "perc") == 0) {
+			else if(strcmp(command, "perc") == 0) { // Display the percentage of people who have voted
 				cout << hashTable.calcPercVoted() << " percent of voters in the hash table have voted." << endl;
 			}
 			continue;
@@ -118,19 +117,20 @@ int main(int argc, char* args[]) {
 		param2 = strtok(NULL, " ");
 		if(param2 == NULL) { // One parameter - used for entry lookup, deletion, and voter registration
 
-			if(strcmp(command, "l") == 0) {
+			if(strcmp(command, "l") == 0) { // Lookup entry based on unique RIN
 				char* endptr; // Only used for the strtol command below which converts the char array param to a long, which we then immediately convert to int
 				cout << "Lookup entered." << endl;
-				int searchedRIN = int(strtol(param1, &endptr, 10));
+				int searchedRIN = int(strtol(param1, &endptr, 10)); // The 10 is the base of the number system
 				hashTable.lookup(searchedRIN, 0);
 
 			}
-			else if(strcmp(command, "r") == 0) {
+			else if(strcmp(command, "r") == 0) { // Register voter as having voted
 				char* endptr;
 				int searchedRIN = int(strtol(param1, &endptr, 10));
-				hashTable.lookup(searchedRIN, 1); // Finds the voter and changes its status to having voted
+				hashTable.lookup(searchedRIN, 1); // Finds the voter and changes its status to having voted (the boolean handles the latter)
 				cout << "Voter status changed!" << endl;
 
+				// After we registered the voter in the main hash table, we have to add them to the zip code list as well
 				Voter currentVoter = hashTable.getVoter(searchedRIN);
 				int currentZipCode = currentVoter.getZipCode();
 
@@ -146,16 +146,46 @@ int main(int argc, char* args[]) {
 				cout << "Zip code list:" << endl;
 				zipList->displayAll();				
 			}
-			else if(strcmp(command, "z") == 0) {
+			else if(strcmp(command, "z") == 0) { // Display all entries in the zip list under the specified zip code
 				char* endptr;
 				int searchedZip = int(strtol(param1, &endptr, 10));				
-				zipList->printZipEntries(searchedZip);				
+				zipList->printZipEntries(searchedZip);			
+			}
+			else if(strcmp(command, "bv") == 0) { // One of the more complex commands - open specified file and register every RIN in there
+				int rinEntry;
+
+				ifstream fin;
+				fin.open(param1); // Fortunately, we can just pass the first (and only) param as the file name
+				if(!fin) {
+					cerr << "Error: file could not be opened." << endl;
+					return -1;
+				}
+
+				while (fin >> rinEntry)	 { // Just execute lookup commands for every line in the file
+					hashTable.lookup(rinEntry, 1);
+					cout << "Voter status changed!" << endl;
+
+					Voter currentVoter = hashTable.getVoter(rinEntry);
+					int currentZipCode = currentVoter.getZipCode();
+
+					if(zipList->findEntry(currentZipCode) == 0) { // Look for the zip code first - if it's not in the list, add it and create a new embedded LL with the voter inside
+							zipList->addFront(currentZipCode, currentVoter);
+							cout << "Added to zip list!" << endl;
+					}
+					else { // If the zip code is already present, insert the voter into the existing embedded LL
+						zipList->insertEntry(currentZipCode, currentVoter);
+						cout << "Added to zip list!" << endl;
+					}
+				}
+
+				fin.close();				
 			}
 
 			continue;
 		}
-		cout << "Second parameter: " << param2 << endl;		
+		cout << "Second parameter: " << param2 << endl;	
 
+		// There are actually no commands with two or three parametres, but this makes for a consistent and predictable tokenising process, making the program run smoother and stabler
 		if(param2 != NULL) {
 			param3 = strtok(NULL, " ");
 			if(param3 == NULL) {
@@ -174,7 +204,7 @@ int main(int argc, char* args[]) {
 
 		if(param4 != NULL) {
 			extraInput = strtok(NULL, "");
-			if(extraInput == NULL) {
+			if(extraInput == NULL) { // The big one: insertion. Uses all four parameters, which are cast into the appropriate types before they are passed to the hash table
 
 				char* endptr;
 				int rin = int(strtol(param1, &endptr, 10));
@@ -183,7 +213,7 @@ int main(int argc, char* args[]) {
 				char* firstName;
 				char* lastName;
 
-				firstName = (char*)malloc(30*sizeof(char));
+				firstName = (char*)malloc(30*sizeof(char)); // Same setup as in the initial file parsing
 				lastName = (char*)malloc(30*sizeof(char));
 
 				strncpy(firstName, param2, sizeof(firstName));
@@ -191,7 +221,6 @@ int main(int argc, char* args[]) {
 
 				bool voted = false;
 
-				//cout << firstName << ' ' << lastName << endl;
 				Voter voter(rin, firstName, lastName, zipCode, voted);
 
 				bool insertSuccess = false;
@@ -204,7 +233,7 @@ int main(int argc, char* args[]) {
 					cout << "Voter inserted!" << endl;				
 				}				
 			}
-			else {
+			else { // Can't have more than four parametres
 				cout << "Extra input: |" << extraInput << "|" << endl;
 				cerr << "Too many parameters. Please try again." << endl;
 				continue;				
