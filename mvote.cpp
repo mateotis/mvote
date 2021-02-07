@@ -35,13 +35,24 @@ int main(int argc, char* args[]) {
 		return -1;
 	}
 
-	// READING DATA FROM SPECIFIED FILE INTO OUR DATA STRUCTURES
-	// Initialising our main data structures
-	HashTable hashTable(100);
-	ZipLinkedList* zipList = new ZipLinkedList();
-
 	char firstName[30], lastName[30]; // Generous estimates as to how long the names can get, since we have no way of telling beforehand
 	int rin, zipCode;
+
+	// Running over the file once front to back to find how many lines there are
+	int lineCount = 0;
+	while (fin >> rin >> firstName >> lastName >> zipCode) { // We don't actually do anything with our variable assignments here, however this is the simplest/smoothest way to iterate over a standard format file
+		lineCount++;
+	}
+	cout << "File has " << lineCount << " lines." << endl;
+	fin.close();
+
+	// READING DATA FROM SPECIFIED FILE INTO OUR DATA STRUCTURES
+	fin.open(inputFile);
+
+	// Initialising our main data structures
+	HashTable hashTable(lineCount * 2); // Dynamically generate hash table: double the size of the input file should give us enough space to work with
+	ZipLinkedList* zipList = new ZipLinkedList();
+
 	while (fin >> rin >> firstName >> lastName >> zipCode) // Since the format of each line is the same, we can tell the program exactly what is what
 	{ // Got the idea to use this from the ifstream documentation: http://www.cplusplus.com/reference/istream/istream/operator%3E%3E/
 		bool voted = false;		
@@ -249,42 +260,3 @@ int main(int argc, char* args[]) {
 
 	return 0;
 }
-
-/*		else if (commandChoice == 5) {
-			char rinFile[30];
-			int rinEntry;
-			cout << "Enter RIN file name: ";
-			cin >> rinFile;
-
-			char* rinFile2;
-			rinFile2 = (char*)malloc(30*sizeof(char));
-			strncpy(rinFile2, rinFile, sizeof(rinFile2));
-
-			cout << rinFile2 << endl;
-			ifstream fin;
-			fin.open(rinFile);
-			if(!fin) {
-				cerr << "Error: file could not be opened." << endl;
-				return -1;
-			}
-
-			while (fin >> rinEntry)	 {
-				hashTable.lookup(rinEntry, 1);
-				cout << "Voter status changed!" << endl;
-
-				Voter currentVoter = hashTable.getVoter(rinEntry);
-				int currentZipCode = currentVoter.getZipCode();
-
-				if(zipList->findEntry(currentZipCode) == 0) { // Look for the zip code first - if it's not in the list, add it and create a new embedded LL with the voter inside
-						zipList->addFront(currentZipCode, currentVoter);
-						cout << "Added to zip list!" << endl;
-				}
-				else { // If the zip code is already present, insert the voter into the existing embedded LL
-					zipList->insertEntry(currentZipCode, currentVoter);
-					cout << "Added to zip list!" << endl;
-				}
-			}
-
-			fin.close();
-		}*/
-
