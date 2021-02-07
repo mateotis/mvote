@@ -33,7 +33,7 @@ class HashLinkedList {
 		Voter getVoter(int rin);
 	private:
 		LLNode* head;
-		int entryNum; // How many entries in the linked list
+		int entryNum = 0; // How many entries in the linked list
 };
 
 

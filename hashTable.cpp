@@ -77,6 +77,7 @@ int HashLinkedList::getEntryNum() {
 	return entryNum;
 }
 
+
 int HashTable::hashCode(const int key) // Very simple hashing function
 {
 

@@ -76,7 +76,6 @@ int main(int argc, char* args[]) {
 	char* param3;
 	char* param4;
 	char* extraInput;
-	bool lookupFlag = false;
 	input = (char*)malloc(100*sizeof(char));
 	command = (char*)malloc(30*sizeof(char));
 	param1 = (char*)malloc(30*sizeof(char));
@@ -110,6 +109,9 @@ int main(int argc, char* args[]) {
 			else if(strcmp(command, "perc") == 0) { // Display the percentage of people who have voted
 				cout << hashTable.calcPercVoted() << " percent of voters in the hash table have voted." << endl;
 			}
+			else if(strcmp(command, "o") == 0) {
+				zipList->getZipVoterTotals();
+			}
 			continue;
 		}
 		cout << "First parameter: " << param1 << endl;
@@ -131,8 +133,8 @@ int main(int argc, char* args[]) {
 				cout << "Voter status changed!" << endl;
 
 				// After we registered the voter in the main hash table, we have to add them to the zip code list as well
-				Voter currentVoter = hashTable.getVoter(searchedRIN);
-				int currentZipCode = currentVoter.getZipCode();
+				Voter currentVoter = hashTable.getVoter(searchedRIN); // Get the voter we're supposed to add
+				int currentZipCode = currentVoter.getZipCode(); // Get its zip code, which will be the key of insertion
 
 				if(zipList->findEntry(currentZipCode) == 0) { // Look for the zip code first - if it's not in the list, add it and create a new embedded LL with the voter inside
 						zipList->addFront(currentZipCode, currentVoter);
@@ -142,6 +144,7 @@ int main(int argc, char* args[]) {
 					zipList->insertEntry(currentZipCode, currentVoter);
 					cout << "Added to zip list!" << endl;
 				}
+				cout << "Current entries in zip list: " << zipList->getEntryNum() << endl;
 
 				cout << "Zip code list:" << endl;
 				zipList->displayAll();				
@@ -176,6 +179,7 @@ int main(int argc, char* args[]) {
 						zipList->insertEntry(currentZipCode, currentVoter);
 						cout << "Added to zip list!" << endl;
 					}
+					cout << "Current entries in zip list: " << zipList->getEntryNum() << endl;
 				}
 
 				fin.close();				

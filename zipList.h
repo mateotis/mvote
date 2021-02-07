@@ -12,7 +12,7 @@ using namespace std;
 class ZipVoterLinkedList : public HashLinkedList {
 	private:
 		LLNode* head;
-		int entryNum; // How many entries in the linked list		
+		int entryNum = 0; // How many entries in the linked list		
 };
 
 // Linked list that holds zip codes and another linked list that holds voter data
@@ -38,9 +38,10 @@ class ZipLinkedList {
 		bool findEntry(int zip);
 		bool insertEntry(int zip, Voter voter);
 		void printZipEntries(int zip);
+		void getZipVoterTotals();
 	private:
 		ZipLLNode* head;
-		int entryNum; // How many entries in the linked list
+		int entryNum = 0; // How many entries in the linked list
 };
 
 #endif
