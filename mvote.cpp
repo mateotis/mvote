@@ -61,12 +61,14 @@ int main(int argc, char* args[]) {
 		hashTable.insert(rin, voter, insertSuccess);
 	}
 
+	fin.close();
+
 	hashTable.scanTable();
 
 	while(true) {
 		int commandChoice;
 
-		cout << "What command? 1. is insertion, 2. is search. 4. is register, 6. is total voter number, 7. is voter percentage." << endl;
+		cout << "What command? 1. is insertion, 2. is search. 4. is register, 5. is batch vote register, 6. is total voter number, 7. is voter percentage, 8. is specific zip code listing, 9. is # of voters at each zip code." << endl;
 		cin >> commandChoice;
 
 		if (commandChoice == 1) {
@@ -131,6 +133,44 @@ int main(int argc, char* args[]) {
 			zipList->displayAll();
 		}
 
+/*		else if (commandChoice == 5) {
+			char rinFile[30];
+			int rinEntry;
+			cout << "Enter RIN file name: ";
+			cin >> rinFile;
+
+			char* rinFile2;
+			rinFile2 = (char*)malloc(30*sizeof(char));
+			strncpy(rinFile2, rinFile, sizeof(rinFile2));
+
+			cout << rinFile2 << endl;
+			ifstream fin;
+			fin.open(rinFile);
+			if(!fin) {
+				cerr << "Error: file could not be opened." << endl;
+				return -1;
+			}
+
+			while (fin >> rinEntry)	 {
+				hashTable.lookup(rinEntry, 1);
+				cout << "Voter status changed!" << endl;
+
+				Voter currentVoter = hashTable.getVoter(rinEntry);
+				int currentZipCode = currentVoter.getZipCode();
+
+				if(zipList->findEntry(currentZipCode) == 0) { // Look for the zip code first - if it's not in the list, add it and create a new embedded LL with the voter inside
+						zipList->addFront(currentZipCode, currentVoter);
+						cout << "Added to zip list!" << endl;
+				}
+				else { // If the zip code is already present, insert the voter into the existing embedded LL
+					zipList->insertEntry(currentZipCode, currentVoter);
+					cout << "Added to zip list!" << endl;
+				}
+			}
+
+			fin.close();
+		}*/
+
 		else if(commandChoice == 6) {
 			cout << hashTable.getVotedNum() << " people in the hash table have voted." << endl;
 		}
@@ -144,6 +184,10 @@ int main(int argc, char* args[]) {
 			cout << "Enter zip code: ";
 			cin >> searchedZip;
 			zipList->printZipEntries(searchedZip);
+		}
+
+		else if(commandChoice == 9) {
+			
 		}
 
 	}

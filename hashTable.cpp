@@ -124,10 +124,12 @@ bool HashTable::lookup(const int key, bool changingVote) // Returns boolean whet
 		count++;
 		cout << "Searching..." << endl;
 		cout << "Currently searched node: " << nodeArray[hash]->getKey() << endl;
+		cout << "Current number of voters: " << votedNum << endl;
 
 		if(changingVote == 1) {
 			nodeArray[hash]->findVoter(key, changingVote);
 			votedNum++;
+			cout << votedNum << " people have now voted." << endl;
 		}
 		else {
 			nodeArray[hash]->findVoter(key, changingVote);

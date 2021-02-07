@@ -87,7 +87,7 @@ class HashTable
 		HashNode **nodeArray; // The container is an array of node pointers
 		int size; // How many voters there currently are in the table
 		int capacity; // Total capacity of table
-		int votedNum; // How many people have voted in the hashtable
+		int votedNum = 0; // How many people have voted in the hashtable
 	public:
 		HashTable(int capacity)
 		{
