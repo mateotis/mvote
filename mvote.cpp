@@ -12,6 +12,7 @@ using namespace std;
 
 int main(int argc, char* args[]) {
 
+	// PARSING COMMAND LINE ARGUMENTS
 	char* inputFile;
 	inputFile = (char*)malloc(30*sizeof(char));
 	for(int i = 0; i < argc; i++) {
@@ -34,6 +35,7 @@ int main(int argc, char* args[]) {
 		return -1;
 	}
 
+	// READING DATA FROM SPECIFIED FILE INTO OUR DATA STRUCTURES
 	// Initialising our main data structures
 	HashTable hashTable(100);
 	ZipLinkedList* zipList = new ZipLinkedList();
@@ -65,73 +67,155 @@ int main(int argc, char* args[]) {
 
 	hashTable.scanTable();
 
+	// PROCESSING USER INPUT AND EXECUTING COMMANDS
+	// Initialise and allocate memory for all potential user inputs: the longest command will have four parametres, anything extra should be dealt with appropriately
+	char* input;
+	char* command;
+	char* param1;
+	char* param2;
+	char* param3;
+	char* param4;
+	char* extraInput;
+	bool lookupFlag = false;
+	input = (char*)malloc(100*sizeof(char));
+	command = (char*)malloc(30*sizeof(char));
+	param1 = (char*)malloc(30*sizeof(char));
+	param2 = (char*)malloc(30*sizeof(char));
+	param3 = (char*)malloc(30*sizeof(char));
+	param4 = (char*)malloc(30*sizeof(char));
+	extraInput = (char*)malloc(30*sizeof(char));
+
 	while(true) {
-		int commandChoice;
 
-		cout << "What command? 1. is insertion, 2. is search. 4. is register, 5. is batch vote register, 6. is total voter number, 7. is voter percentage, 8. is specific zip code listing, 9. is # of voters at each zip code." << endl;
-		cin >> commandChoice;
+		cout << "Enter input: " << endl;
 
-		if (commandChoice == 1) {
-			char firstName[30], lastName[30];
-			int rin, zipCode;
-			bool voted = false;
+		cin.getline(input, 100); // Turns out, you don't need strings to use getline! Found in the reference: http://www.cplusplus.com/reference/istream/istream/getline/
 
-			cout << "Enter voter info: ";
-			cin >> rin >> firstName >> lastName >> zipCode;
+		// Starting the tokenisation process: we go word by word, figuring out exactly how many params the user input and handling each use case appropriately
+		command = strtok(input, " ");
+		if(command == NULL) { // If at any point the next token is a null, it means we've reached the end of the input and we should stop tokenising and start executing
+			cerr << "Input cannot be empty." << endl;
+			//continue;
+			exit(-1);
+		}
+		cout << "Command: " << command << endl;
 
-			char* firstName2;
-			char* lastName2;
+		param1 = strtok(NULL, " ");
+		if(param1 == NULL) { // Only one command - used for paramaterless inputs, like v or perc
+			if(strcmp(command, "exit") == 0) { // TO DO - release all memory before exiting
+				exit(0);
+			}
+			if(strcmp(command, "v") == 0) {
+				cout << hashTable.getVotedNum() << " people in the hash table have voted." << endl;
+			}
+			else if(strcmp(command, "perc") == 0) {
+				cout << hashTable.calcPercVoted() << " percent of voters in the hash table have voted." << endl;
+			}
+			continue;
+		}
+		cout << "First parameter: " << param1 << endl;
 
-			firstName2 = (char*)malloc(30*sizeof(char));
-			lastName2 = (char*)malloc(30*sizeof(char));
+		param2 = strtok(NULL, " ");
+		if(param2 == NULL) { // One parameter - used for entry lookup, deletion, and voter registration
 
-			strncpy(firstName2, firstName, sizeof(firstName2));
-			strncpy(lastName2, lastName, sizeof(lastName2));
+			if(strcmp(command, "l") == 0) {
+				char* endptr; // Only used for the strtol command below which converts the char array param to a long, which we then immediately convert to int
+				cout << "Lookup entered." << endl;
+				int searchedRIN = int(strtol(param1, &endptr, 10));
+				hashTable.lookup(searchedRIN, 0);
 
-			cout << firstName2 << ' ' << lastName2 << endl;
-			Voter voter(rin, firstName2, lastName2, zipCode, voted);
+			}
+			else if(strcmp(command, "r") == 0) {
+				char* endptr;
+				int searchedRIN = int(strtol(param1, &endptr, 10));
+				hashTable.lookup(searchedRIN, 1); // Finds the voter and changes its status to having voted
+				cout << "Voter status changed!" << endl;
 
-			bool insertSuccess = false;
+				Voter currentVoter = hashTable.getVoter(searchedRIN);
+				int currentZipCode = currentVoter.getZipCode();
 
-			if(hashTable.lookup(rin, 0) == 1) {
-				cerr << "Error: voter already in system." << endl;
+				if(zipList->findEntry(currentZipCode) == 0) { // Look for the zip code first - if it's not in the list, add it and create a new embedded LL with the voter inside
+						zipList->addFront(currentZipCode, currentVoter);
+						cout << "Added to zip list!" << endl;
+				}
+				else { // If the zip code is already present, insert the voter into the existing embedded LL
+					zipList->insertEntry(currentZipCode, currentVoter);
+					cout << "Added to zip list!" << endl;
+				}
+
+				cout << "Zip code list:" << endl;
+				zipList->displayAll();				
+			}
+			else if(strcmp(command, "z") == 0) {
+				char* endptr;
+				int searchedZip = int(strtol(param1, &endptr, 10));				
+				zipList->printZipEntries(searchedZip);				
+			}
+
+			continue;
+		}
+		cout << "Second parameter: " << param2 << endl;		
+
+		if(param2 != NULL) {
+			param3 = strtok(NULL, " ");
+			if(param3 == NULL) {
+				continue;
+			}
+			cout << "Third parameter: " << param3 << endl;
+		}
+
+		if(param3 != NULL) {
+			param4 = strtok(NULL, " ");
+			if(param4 == NULL) {
+				continue;
+			}
+			cout << "Fourth parameter: " << param4 << endl;
+		}
+
+		if(param4 != NULL) {
+			extraInput = strtok(NULL, "");
+			if(extraInput == NULL) {
+
+				char* endptr;
+				int rin = int(strtol(param1, &endptr, 10));
+				int zipCode = int(strtol(param4, &endptr, 10));	
+
+				char* firstName;
+				char* lastName;
+
+				firstName = (char*)malloc(30*sizeof(char));
+				lastName = (char*)malloc(30*sizeof(char));
+
+				strncpy(firstName, param2, sizeof(firstName));
+				strncpy(lastName, param3, sizeof(lastName));		
+
+				bool voted = false;
+
+				//cout << firstName << ' ' << lastName << endl;
+				Voter voter(rin, firstName, lastName, zipCode, voted);
+
+				bool insertSuccess = false;
+
+				if(hashTable.lookup(rin, 0) == 1) {
+					cerr << "Error: voter already in system." << endl;
+				}
+				else {
+					hashTable.insert(rin, voter, insertSuccess);	
+					cout << "Voter inserted!" << endl;				
+				}				
 			}
 			else {
-				hashTable.insert(rin, voter, insertSuccess);	
-				cout << "Voter inserted!" << endl;				
+				cout << "Extra input: |" << extraInput << "|" << endl;
+				cerr << "Too many parameters. Please try again." << endl;
+				continue;				
 			}
-
 		}
 
-		else if(commandChoice == 2) {
-			int searchedRIN;
-			cout << "Enter RIN: ";
-			cin >> searchedRIN;
-			hashTable.lookup(searchedRIN, 0);	
-		}
 
-		else if(commandChoice == 4) {
-			int searchedRIN;
-			cout << "Enter RIN: ";
-			cin >> searchedRIN;
-			hashTable.lookup(searchedRIN, 1); // Finds the voter and changes its status to having voted
-			cout << "Voter status changed!" << endl;
+	}
 
-			Voter currentVoter = hashTable.getVoter(searchedRIN);
-			int currentZipCode = currentVoter.getZipCode();
-
-			if(zipList->findEntry(currentZipCode) == 0) { // Look for the zip code first - if it's not in the list, add it and create a new embedded LL with the voter inside
-					zipList->addFront(currentZipCode, currentVoter);
-					cout << "Added to zip list!" << endl;
-			}
-			else { // If the zip code is already present, insert the voter into the existing embedded LL
-				zipList->insertEntry(currentZipCode, currentVoter);
-				cout << "Added to zip list!" << endl;
-			}
-
-			cout << "Zip code list:" << endl;
-			zipList->displayAll();
-		}
+	return 0;
+}
 
 /*		else if (commandChoice == 5) {
 			char rinFile[30];
@@ -171,28 +255,3 @@ int main(int argc, char* args[]) {
 			fin.close();
 		}*/
 
-		else if(commandChoice == 6) {
-			cout << hashTable.getVotedNum() << " people in the hash table have voted." << endl;
-		}
-
-		else if(commandChoice == 7) {
-			cout << hashTable.calcPercVoted() << " percent of voters in the hash table have voted." << endl;
-		}
-
-		else if(commandChoice == 8) {
-			int searchedZip;
-			cout << "Enter zip code: ";
-			cin >> searchedZip;
-			zipList->printZipEntries(searchedZip);
-		}
-
-		else if(commandChoice == 9) {
-			
-		}
-
-	}
-
-
-	return 0;
-
-}
