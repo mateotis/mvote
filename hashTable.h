@@ -27,9 +27,10 @@ class HashLinkedList {
 		Voter& front() const;
 		void addFront(const Voter& e);
 		void removeFront();
+		void remove(int rin);
 		void displayAll();
 		int getEntryNum();
-		void findEntry(int rin, bool changingVote);
+		void findEntry(int rin, int lookupMode);
 		Voter getVoter(int rin);
 	private:
 		LLNode* head;
@@ -68,11 +69,30 @@ class HashNode
 		int getListEntryNum() {
 			return this->value->getEntryNum();
 		}
-		void findVoter(int rin, bool changingVote) {
-			this->value->findEntry(rin, changingVote);
+		void findVoter(int rin, int lookupMode) {
+			this->value->findEntry(rin, lookupMode);
 		}
 		Voter getVoter(int rin) {
 			return this->value->getVoter(rin);
+		}
+		void removeVoter(int rin) {
+			if(this->value->empty() == false) {
+				this->value->remove(rin);
+			}
+			else {
+				cerr << "Could not remove voter as it is not in the database." << endl;
+			}
+			
+		}
+
+		~HashNode() {
+			if(this->value->empty() == false) {
+				cerr << "Error: should not be deleting node with non-empty linked list!" << endl;
+			}
+			else {
+				// TO DO: delete list head before deleting list itself!
+				delete this->value;
+			}
 		}
 /*		void getVoterInfo() {
 			cout << this->value.getRIN() << ' ' << this->value.getFirstName() << ' ' << this->value.getLastName() << ' ' << this->value.getZipCode() << '\n';
@@ -97,7 +117,7 @@ class HashTable
 		} 
 		int hashCode(const int key);
 		void insert(const int key, Voter value, bool& insertSuccess);
-		bool lookup(const int key, bool changingVote);
+		bool lookup(const int key, int lookupMode);
 		Voter getVoter(const int rin);
 		//void remove(const int key);
 

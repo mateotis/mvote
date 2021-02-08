@@ -48,17 +48,10 @@ class Voter {
 			return;
 		}
 
-/*		char* getVoterInfo() {
-			char voterInfo[30];
-			strcpy(voterInfo, to_string(rin).c_str()); // Workaround to transform an int to a char array without using the unsupported itoa()
-			strcat(voterInfo, firstName);
-			strcat(voterInfo, lastName);
-			strcat(voterInfo, to_string(zipCode).c_str());
+		~Voter() {
+			cout << "Calling destructor" << endl;
+		}
 
-			cout << voterInfo << "\n";
-
-			return voterInfo;
-		}*/
 };
 
 #endif

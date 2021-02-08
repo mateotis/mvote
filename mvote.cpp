@@ -69,9 +69,11 @@ int main(int argc, char* args[]) {
 
 		cout << firstName2 << ' ' << lastName2 << endl;
 		Voter voter(rin, firstName2, lastName2, zipCode, voted);
+		cout << "right after voter object init" << endl;
 
 		bool insertSuccess = false;
 		hashTable.insert(rin, voter, insertSuccess);
+		cout << "right after insertion" << endl;
 	}
 
 	fin.close();
@@ -132,9 +134,9 @@ int main(int argc, char* args[]) {
 
 			if(strcmp(command, "l") == 0) { // Lookup entry based on unique RIN
 				char* endptr; // Only used for the strtol command below which converts the char array param to a long, which we then immediately convert to int
-				cout << "Lookup entered." << endl;
 				int searchedRIN = int(strtol(param1, &endptr, 10)); // The 10 is the base of the number system
-				hashTable.lookup(searchedRIN, 0);
+				int lookupM = 0; // Have to define it as an int because for some reason, the compiler thinks this 0 is a boolean if passed directly
+				hashTable.lookup(searchedRIN, lookupM);
 
 			}
 			else if(strcmp(command, "r") == 0) { // Register voter as having voted
@@ -159,6 +161,11 @@ int main(int argc, char* args[]) {
 
 				cout << "Zip code list:" << endl;
 				zipList->displayAll();				
+			}
+			else if(strcmp(command, "d") == 0) { // Delete specified voter
+				char* endptr;
+				int searchedRIN = int(strtol(param1, &endptr, 10));				
+				hashTable.lookup(searchedRIN, 2); // Calls lookup with lookupMode 2 - search & destroy
 			}
 			else if(strcmp(command, "z") == 0) { // Display all entries in the zip list under the specified zip code
 				char* endptr;

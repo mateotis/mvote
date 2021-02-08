@@ -35,6 +35,35 @@ void HashLinkedList::removeFront() {
 	entryNum--;
 }
 
+void HashLinkedList::remove(int rin) {
+	LLNode* v = head;
+	LLNode* temp = head; // Temp variable to help keep list structure intact while removing; initially set to the head as that's the first case we look at
+	if(v->voter.getRIN() == rin) {
+		cout << "Found voter to delete at the head!" << endl;
+		head = temp->next;
+		delete temp;
+		entryNum--;
+		return;
+	}
+
+	while(v != NULL) {
+		if(v->next->voter.getRIN() == rin) { // Always looking one step ahead, since we can't iterate backwards (this being a singly linked list)
+			cout << "Found voter to delete!" << endl;
+			LLNode* newNext = v->next->next; // Save the to-be-deleted node's next
+			delete v->next; // Delete the offending node
+			v->next = newNext; // Connect the current node to the next valid one
+			entryNum--;
+			return;
+		}
+
+		v = v->next;
+	}
+
+	cout << "Voter not found in LL!" << endl;
+	return;
+	
+}
+
 void HashLinkedList::displayAll() {
 	LLNode* v = head;
 	while(v != NULL) {
@@ -43,13 +72,13 @@ void HashLinkedList::displayAll() {
 	}
 }
 
-void HashLinkedList::findEntry(int rin, bool changingVote) {
+void HashLinkedList::findEntry(int rin, int lookupMode) {
 	LLNode* v = head;
 	while(v != NULL) {
 		if(v->voter.getRIN() == rin) {
 			cout << "Voter found in LL!" << endl;
 			v->voter.getVoterInfo();
-			if(changingVote == 1) {
+			if(lookupMode == 1) {
 				v->voter.setVoted(1);
 			}
 			return;			
@@ -77,14 +106,13 @@ int HashLinkedList::getEntryNum() {
 	return entryNum;
 }
 
-
 int HashTable::hashCode(const int key) // Very simple hashing function
 {
 
 	return key % capacity; // To ensure we stay within bounds of the table
 }
 
-void HashTable::insert(const int key, Voter value, bool& insertSuccess) // Insertion through open addressing
+void HashTable::insert(const int key, Voter value, bool& insertSuccess) // Insertion through separate chaining
 {
 	int hash = hashCode(key);
 	//cout << "Insertion hash: " << hash << endl;
@@ -115,25 +143,33 @@ void HashTable::insert(const int key, Voter value, bool& insertSuccess) // Inser
 
 }
 
-bool HashTable::lookup(const int key, bool changingVote) // Returns boolean whether the voter was found or not; also handles vote registering with another handy boolean
+bool HashTable::lookup(const int key, int lookupMode) // Returns boolean whether the voter was found or not; also handles vote registering with another handy boolean
 {
 	int hash = hashCode(key);
-	cout << "Searching hash: " << hash << endl;
-	cout << "Looking for: " << key << endl;
-	int count = 0;
 	if(nodeArray[hash] != nullptr) {
-		count++;
-		cout << "Searching..." << endl;
 		cout << "Currently searched node: " << nodeArray[hash]->getKey() << endl;
 		cout << "Current number of voters: " << votedNum << endl;
 
-		if(changingVote == 1) {
-			nodeArray[hash]->findVoter(key, changingVote);
+		// lookupMode: making use of an int to make the lookup() function achieve different things - 0 is find, 1 is find and register, 2 is find and delete
+		if(lookupMode == 2) {
+			nodeArray[hash]->removeVoter(key);
+			votedNum--;
+			cout << votedNum << " people have now voted." << endl;
+
+			cout << "Number of voters in node: " << nodeArray[hash]->getListEntryNum() << endl;
+
+			if(nodeArray[hash]->getListEntryNum() == 0) { // If this deletion empties the list, we can delete the whole node
+				delete nodeArray[hash];
+				cout << "Node deleted." << endl;
+			}
+		}
+		else if(lookupMode == 1) {
+			nodeArray[hash]->findVoter(key, lookupMode);
 			votedNum++;
 			cout << votedNum << " people have now voted." << endl;
 		}
 		else {
-			nodeArray[hash]->findVoter(key, changingVote);
+			nodeArray[hash]->findVoter(key, lookupMode);
 		}
 		return 1;
 	}
