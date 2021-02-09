@@ -55,10 +55,6 @@ class HashNode
 		{
 			return this->key;
 		}
-/*		HashLinkedList getValue()
-		{
-			return this->value;
-		}*/
 		void getVoterInfo() {
 			this->value->displayAll();
 			return;
@@ -89,15 +85,10 @@ class HashNode
 			if(this->value->empty() == false) {
 				cerr << "Error: should not be deleting node with non-empty linked list!" << endl;
 			}
-			else {
-				// TO DO: delete list head before deleting list itself!
+			else { // Since we should've already cleaned up the entire linked list before we get to this pont, we can safely delete the list itself
 				delete this->value;
 			}
 		}
-/*		void getVoterInfo() {
-			cout << this->value.getRIN() << ' ' << this->value.getFirstName() << ' ' << this->value.getLastName() << ' ' << this->value.getZipCode() << '\n';
-			return;
-		}*/
 
 };
 
@@ -151,6 +142,7 @@ class HashTable
 
 		~HashTable() // Destructor, releases all dynamically allocated memory
 		{
+			cout << "Hash table destructor called." << endl;
 			int cnt = 0;
 			for(int i = 0; i < capacity; i++) {
 				if(nodeArray[i] != nullptr) { // Finds every node

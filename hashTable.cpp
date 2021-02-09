@@ -38,11 +38,20 @@ void HashLinkedList::removeFront() {
 void HashLinkedList::remove(int rin) {
 	LLNode* v = head;
 	LLNode* temp = head; // Temp variable to help keep list structure intact while removing; initially set to the head as that's the first case we look at
+
 	if(v->voter.getRIN() == rin) {
 		cout << "Found voter to delete at the head!" << endl;
 		head = temp->next;
+		v->next->voter.deleteChars(); // Delete the Voter object
+		//delete temp->voter;
 		delete temp;
 		entryNum--;
+
+		if(entryNum == 0) { // If we're out of entries now, just delete the head as well to make cleaning up the linked list easier
+			cout << "Head deleted." << endl;
+			delete head;
+			head = NULL;
+		}
 		return;
 	}
 
@@ -50,9 +59,17 @@ void HashLinkedList::remove(int rin) {
 		if(v->next->voter.getRIN() == rin) { // Always looking one step ahead, since we can't iterate backwards (this being a singly linked list)
 			cout << "Found voter to delete!" << endl;
 			LLNode* newNext = v->next->next; // Save the to-be-deleted node's next
+			v->next->voter.deleteChars(); // Delete the Voter object
+			//delete v->next->voter;
 			delete v->next; // Delete the offending node
 			v->next = newNext; // Connect the current node to the next valid one
 			entryNum--;
+
+			if(entryNum == 0) { // If we're out of entries now, just delete the head as well to make cleaning up the linked list easier
+				cout << "Head deleted." << endl;
+				delete head;
+				head = NULL;
+			}
 			return;
 		}
 
@@ -160,6 +177,7 @@ bool HashTable::lookup(const int key, int lookupMode) // Returns boolean whether
 
 			if(nodeArray[hash]->getListEntryNum() == 0) { // If this deletion empties the list, we can delete the whole node
 				delete nodeArray[hash];
+				nodeArray[hash] = nullptr;
 				cout << "Node deleted." << endl;
 			}
 		}

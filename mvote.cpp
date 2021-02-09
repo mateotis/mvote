@@ -50,14 +50,14 @@ int main(int argc, char* args[]) {
 	fin.open(inputFile);
 
 	// Initialising our main data structures
-	HashTable hashTable(lineCount * 2); // Dynamically generate hash table: double the size of the input file should give us enough space to work with
+	HashTable* hashTable = new HashTable(lineCount * 2); // Dynamically generate hash table: double the size of the input file should give us enough space to work with
 	ZipLinkedList* zipList = new ZipLinkedList();
 
 	while (fin >> rin >> firstName >> lastName >> zipCode) // Since the format of each line is the same, we can tell the program exactly what is what
 	{ // Got the idea to use this from the ifstream documentation: http://www.cplusplus.com/reference/istream/istream/operator%3E%3E/
 		bool voted = false;		
 
-		char* firstName2; // The actual name containers
+/*		char* firstName2; // The actual name containers
 		char* lastName2;
 
 		// After days of struggle, I finally figured out the overwriting error - I didn't allocate memory for my char arrays properly
@@ -65,20 +65,20 @@ int main(int argc, char* args[]) {
 		lastName2 = (char*)malloc(30*sizeof(char));
 
 		strncpy(firstName2, firstName, sizeof(firstName2));
-		strncpy(lastName2, lastName, sizeof(lastName2));
+		strncpy(lastName2, lastName, sizeof(lastName2));*/
 
-		cout << firstName2 << ' ' << lastName2 << endl;
-		Voter voter(rin, firstName2, lastName2, zipCode, voted);
+		//cout << firstName2 << ' ' << lastName2 << endl;
+		Voter voter(rin, firstName, lastName, zipCode, voted);
 		cout << "right after voter object init" << endl;
 
 		bool insertSuccess = false;
-		hashTable.insert(rin, voter, insertSuccess);
+		hashTable->insert(rin, voter, insertSuccess);
 		cout << "right after insertion" << endl;
 	}
 
 	fin.close();
 
-	hashTable.scanTable();
+	hashTable->scanTable();
 
 	// PROCESSING USER INPUT AND EXECUTING COMMANDS
 	// Initialise and allocate memory for all potential user inputs: the longest command will have four parametres, anything extra should be dealt with appropriately
@@ -114,13 +114,14 @@ int main(int argc, char* args[]) {
 		param1 = strtok(NULL, " ");
 		if(param1 == NULL) { // Only one command - used for paramaterless inputs, like v or perc
 			if(strcmp(command, "exit") == 0) { // TO DO - release all memory before exiting
+				delete hashTable;
 				exit(0);
 			}
 			if(strcmp(command, "v") == 0) { // Display how many people in total have voted
-				cout << hashTable.getVotedNum() << " people in the hash table have voted." << endl;
+				cout << hashTable->getVotedNum() << " people in the hash table have voted." << endl;
 			}
 			else if(strcmp(command, "perc") == 0) { // Display the percentage of people who have voted
-				cout << hashTable.calcPercVoted() << " percent of voters in the hash table have voted." << endl;
+				cout << hashTable->calcPercVoted() << " percent of voters in the hash table have voted." << endl;
 			}
 			else if(strcmp(command, "o") == 0) {
 				zipList->getZipVoterTotals();
@@ -136,17 +137,17 @@ int main(int argc, char* args[]) {
 				char* endptr; // Only used for the strtol command below which converts the char array param to a long, which we then immediately convert to int
 				int searchedRIN = int(strtol(param1, &endptr, 10)); // The 10 is the base of the number system
 				int lookupM = 0; // Have to define it as an int because for some reason, the compiler thinks this 0 is a boolean if passed directly
-				hashTable.lookup(searchedRIN, lookupM);
+				hashTable->lookup(searchedRIN, lookupM);
 
 			}
 			else if(strcmp(command, "r") == 0) { // Register voter as having voted
 				char* endptr;
 				int searchedRIN = int(strtol(param1, &endptr, 10));
-				hashTable.lookup(searchedRIN, 1); // Finds the voter and changes its status to having voted (the boolean handles the latter)
+				hashTable->lookup(searchedRIN, 1); // Finds the voter and changes its status to having voted (the boolean handles the latter)
 				cout << "Voter status changed!" << endl;
 
 				// After we registered the voter in the main hash table, we have to add them to the zip code list as well
-				Voter currentVoter = hashTable.getVoter(searchedRIN); // Get the voter we're supposed to add
+				Voter currentVoter = hashTable->getVoter(searchedRIN); // Get the voter we're supposed to add
 				int currentZipCode = currentVoter.getZipCode(); // Get its zip code, which will be the key of insertion
 
 				if(zipList->findEntry(currentZipCode) == 0) { // Look for the zip code first - if it's not in the list, add it and create a new embedded LL with the voter inside
@@ -165,7 +166,7 @@ int main(int argc, char* args[]) {
 			else if(strcmp(command, "d") == 0) { // Delete specified voter
 				char* endptr;
 				int searchedRIN = int(strtol(param1, &endptr, 10));				
-				hashTable.lookup(searchedRIN, 2); // Calls lookup with lookupMode 2 - search & destroy
+				hashTable->lookup(searchedRIN, 2); // Calls lookup with lookupMode 2 - search & destroy
 			}
 			else if(strcmp(command, "z") == 0) { // Display all entries in the zip list under the specified zip code
 				char* endptr;
@@ -183,10 +184,10 @@ int main(int argc, char* args[]) {
 				}
 
 				while (fin >> rinEntry)	 { // Just execute lookup commands for every line in the file
-					hashTable.lookup(rinEntry, 1);
+					hashTable->lookup(rinEntry, 1);
 					cout << "Voter status changed!" << endl;
 
-					Voter currentVoter = hashTable.getVoter(rinEntry);
+					Voter currentVoter = hashTable->getVoter(rinEntry);
 					int currentZipCode = currentVoter.getZipCode();
 
 					if(zipList->findEntry(currentZipCode) == 0) { // Look for the zip code first - if it's not in the list, add it and create a new embedded LL with the voter inside
@@ -247,11 +248,11 @@ int main(int argc, char* args[]) {
 
 				bool insertSuccess = false;
 
-				if(hashTable.lookup(rin, 0) == 1) {
+				if(hashTable->lookup(rin, 0) == 1) {
 					cerr << "Error: voter already in system." << endl;
 				}
 				else {
-					hashTable.insert(rin, voter, insertSuccess);	
+					hashTable->insert(rin, voter, insertSuccess);	
 					cout << "Voter inserted!" << endl;				
 				}				
 			}
