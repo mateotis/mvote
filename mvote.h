@@ -29,8 +29,14 @@ class Voter {
 		Voter(int inputRIN, char inputFN[30], char inputLN[30], int inputZip, bool inputVoted) {
 
 			// After days of struggle, I finally figured out the overwriting error - I didn't allocate memory for my char arrays properly
-			this->firstName = (char*)malloc(30*sizeof(char));
-			this->lastName = (char*)malloc(30*sizeof(char));
+			//this->firstName = (char*)malloc(30*sizeof(char));
+			//this->lastName = (char*)malloc(30*sizeof(char));
+
+			this->firstName = new char[30];
+			this->lastName = new char[30];
+
+			//free(this->firstName);
+			//free(this->lastName);
 
 			strncpy(this->firstName, inputFN, sizeof(this->firstName));
 			strncpy(this->lastName, inputLN, sizeof(this->lastName));
@@ -66,12 +72,14 @@ class Voter {
 /*		void deleteChars() { // Using a separate method to free up the malloc'd class variables (called when we're deleting the class object as a whole) because the destructor is called automatically upon insertion, and this is a handy work-around
 			cout << "Deleting class char: " << this->firstName << endl;
 			cout << "Deleting class char: " << this->lastName << endl;
-			free(this->firstName);
-			free(this->lastName);
+			delete[] this->firstName;
+			delete[] this->lastName;
 		}*/
 
 		~Voter() {
-			cout << "Calling Voter destructor" << endl;
+			cout << "Calling Voter destructor on RIN and zip: " << rin << " " << zipCode << endl;
+			//delete[] this->firstName;
+			//delete[] this->lastName;			
 		}
 
 };

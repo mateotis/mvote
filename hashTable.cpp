@@ -175,8 +175,10 @@ bool HashTable::lookup(const int key, int lookupMode) // Returns boolean whether
 
 		// lookupMode: making use of an int to make the lookup() function achieve different things - 0 is find, 1 is find and register, 2 is find and delete
 		if(lookupMode == 2) {
+			if(getVoter(key).getVoted() == 1) { // Only subtract from voted count if that voter has actually voted
+				votedNum--;
+			}
 			nodeArray[hash]->removeVoter(key);
-			votedNum--;
 			cout << votedNum << " people have now voted." << endl;
 
 			cout << "Number of voters in node: " << nodeArray[hash]->getListEntryNum() << endl;

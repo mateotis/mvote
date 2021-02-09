@@ -17,12 +17,18 @@ class ZipVoterLinkedList : public HashLinkedList {
 
 // Linked list that holds zip codes and another linked list that holds voter data
 class ZipLLNode {
-private:
-	int zipCode;
-	ZipVoterLinkedList* value;
-	ZipLLNode* next;
+	private:
+		int zipCode;
+		ZipVoterLinkedList* value;
+		ZipLLNode* next;
 
-	friend class ZipLinkedList;
+		friend class ZipLinkedList;
+
+	public:
+		~ZipLLNode() { // Need a separate destructor because we have dynamically allocated data in ZipLLNodes
+			cout << "In ZipLLNode destructor." << endl;
+			delete value;
+		}
 };
 
 class ZipLinkedList {

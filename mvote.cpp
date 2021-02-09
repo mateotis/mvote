@@ -13,8 +13,8 @@ using namespace std;
 int main(int argc, char* args[]) {
 
 	// PARSING COMMAND LINE ARGUMENTS
-	char* inputFile;
-	inputFile = (char*)malloc(30*sizeof(char));
+	//char* inputFile;
+	char* inputFile = (char*)malloc(30*sizeof(char));
 	for(int i = 0; i < argc; i++) {
 		cout << typeid(args[i]).name() << endl;
 		if (strcmp(args[i], "-f") == 0) { // Can't use a simple == operator as args[i] elements have the weird "Pc" type
@@ -77,6 +77,7 @@ int main(int argc, char* args[]) {
 	}
 
 	fin.close();
+	//free(inputFile);
 
 	hashTable->scanTable();
 
@@ -115,6 +116,8 @@ int main(int argc, char* args[]) {
 		if(param1 == NULL) { // Only one command - used for paramaterless inputs, like v or perc
 			if(strcmp(command, "exit") == 0) { // TO DO - release all memory before exiting
 				delete hashTable;
+				delete zipList;
+				free(input);
 				exit(0);
 			}
 			if(strcmp(command, "v") == 0) { // Display how many people in total have voted
