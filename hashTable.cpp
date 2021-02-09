@@ -117,6 +117,12 @@ Voter HashLinkedList::getVoter(int rin) {
 
 		v = v->next;
 	}
+
+	cerr << "Could not delete voter as it was not found in the database." << endl;
+	char dummyFN[30] = "DUMMY";
+	char dummyLN[30] = "VOTER";
+	Voter dummyVoter(0, dummyFN, dummyLN, 0, 0); // In case the user tries to delete an entry that's not in the table, return a dummy to prevent crashing
+	return dummyVoter;
 }
 
 int HashLinkedList::getEntryNum() {
@@ -202,5 +208,15 @@ bool HashTable::lookup(const int key, int lookupMode) // Returns boolean whether
 Voter HashTable::getVoter(const int rin) { // Gets a specific Voter object, needed (ironically) for zip code list handling
 	int hash = hashCode(rin);
 
-	return nodeArray[hash]->getVoter(rin);
+	if(nodeArray[hash] == nullptr) {
+		cerr << "Could not delete voter as it was not found in the database." << endl;
+		char dummyFN[30] = "DUMMY";
+		char dummyLN[30] = "VOTER";
+		Voter dummyVoter(0, dummyFN, dummyLN, 0, 0); // In case the user tries to delete an entry that's not in the table, return a dummy to prevent crashing
+		return dummyVoter;
+	}
+	else {
+		return nodeArray[hash]->getVoter(rin);
+	}
+	
 }

@@ -167,6 +167,11 @@ int main(int argc, char* args[]) {
 				char* endptr;
 				int searchedRIN = int(strtol(param1, &endptr, 10));
 				Voter currentVoter = hashTable->getVoter(searchedRIN); // Fetch the voter before we remove it so we can get its zip
+
+				if(currentVoter.getRIN() == 0 && currentVoter.getZipCode() == 0) { // If we get a dummy voter return from getVoter() with these values, that means the voter wasn't found 
+					continue;
+				}
+
 				int currentZipCode = currentVoter.getZipCode(); // Get the zip
 
 				hashTable->lookup(searchedRIN, 2); // Calls lookup with lookupMode 2 - search & destroy
