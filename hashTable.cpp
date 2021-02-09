@@ -42,7 +42,7 @@ void HashLinkedList::remove(int rin) {
 	if(v->voter.getRIN() == rin) {
 		cout << "Found voter to delete at the head!" << endl;
 		head = temp->next;
-		v->next->voter.deleteChars(); // Delete the Voter object
+		//v->next->voter.deleteChars(); // Delete the Voter object
 		//delete temp->voter;
 		delete temp;
 		entryNum--;
@@ -59,7 +59,7 @@ void HashLinkedList::remove(int rin) {
 		if(v->next->voter.getRIN() == rin) { // Always looking one step ahead, since we can't iterate backwards (this being a singly linked list)
 			cout << "Found voter to delete!" << endl;
 			LLNode* newNext = v->next->next; // Save the to-be-deleted node's next
-			v->next->voter.deleteChars(); // Delete the Voter object
+			//v->next->voter.deleteChars(); // Delete the Voter object
 			//delete v->next->voter;
 			delete v->next; // Delete the offending node
 			v->next = newNext; // Connect the current node to the next valid one

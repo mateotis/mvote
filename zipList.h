@@ -33,6 +33,7 @@ class ZipLinkedList {
 		int& front() const;
 		void addFront(const int& e, const Voter& f);
 		void removeFront();
+		void remove(int rin, int zip);
 		void displayAll();
 		int getEntryNum();
 		bool findEntry(int zip);

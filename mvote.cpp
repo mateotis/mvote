@@ -165,8 +165,15 @@ int main(int argc, char* args[]) {
 			}
 			else if(strcmp(command, "d") == 0) { // Delete specified voter
 				char* endptr;
-				int searchedRIN = int(strtol(param1, &endptr, 10));				
+				int searchedRIN = int(strtol(param1, &endptr, 10));
+				Voter currentVoter = hashTable->getVoter(searchedRIN); // Fetch the voter before we remove it so we can get its zip
+				int currentZipCode = currentVoter.getZipCode(); // Get the zip
+
 				hashTable->lookup(searchedRIN, 2); // Calls lookup with lookupMode 2 - search & destroy
+
+				cout << "Just before zip list deletion" << endl;
+				zipList->remove(searchedRIN, currentZipCode);
+
 			}
 			else if(strcmp(command, "z") == 0) { // Display all entries in the zip list under the specified zip code
 				char* endptr;
@@ -233,18 +240,18 @@ int main(int argc, char* args[]) {
 				int rin = int(strtol(param1, &endptr, 10));
 				int zipCode = int(strtol(param4, &endptr, 10));	
 
-				char* firstName;
+/*				char* firstName;
 				char* lastName;
 
 				firstName = (char*)malloc(30*sizeof(char)); // Same setup as in the initial file parsing
 				lastName = (char*)malloc(30*sizeof(char));
 
 				strncpy(firstName, param2, sizeof(firstName));
-				strncpy(lastName, param3, sizeof(lastName));		
+				strncpy(lastName, param3, sizeof(lastName));	*/	
 
 				bool voted = false;
 
-				Voter voter(rin, firstName, lastName, zipCode, voted);
+				Voter voter(rin, param2, param3, zipCode, voted);
 
 				bool insertSuccess = false;
 

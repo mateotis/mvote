@@ -83,7 +83,8 @@ class HashNode
 
 		~HashNode() {
 			if(this->value->empty() == false) {
-				cerr << "Error: should not be deleting node with non-empty linked list!" << endl;
+				delete this->value; // HashLinkedList has a destructor which empties out the list before deletion; it also automatically calls the Voter destructors
+				cout << "This should only display when we are exiting the program!" << endl;
 			}
 			else { // Since we should've already cleaned up the entire linked list before we get to this pont, we can safely delete the list itself
 				delete this->value;

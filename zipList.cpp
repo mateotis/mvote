@@ -78,6 +78,43 @@ bool ZipLinkedList::insertEntry(int zip, Voter voter) {
 	return 0;	
 }
 
+void ZipLinkedList::remove(int rin, int zip) {
+	cout << "In zip list removal function" << endl;
+	ZipLLNode* v = head;
+	while(v != NULL) {
+		if(v->zipCode == zip && v == head) { // If we find it right away at the head, it's a special procedure
+			cout << "Zip code " << zip << " found in LL head! Proceeding to deletion." << endl;
+			v->value->remove(rin);
+
+			if(v->value->empty() == true) { // If this removal empties the embedded linked list, we have to delete it too, which means going through the whole pointer realignment procedure
+				ZipLLNode* temp = head;
+				head = temp->next;
+				delete temp;
+				entryNum--;
+			}
+			return;
+		}
+
+		else if(v->next->zipCode == zip) { // Again, gotta stay one step ahead, because we might have to delete the entire embedded linked list
+			cout << "Zip code " << zip << " found in LL! Proceeding to deletion." << endl;
+			v->next->value->remove(rin); // ZipVoterLinkedList inherits from HashLinkedList, so this remove function is identical to the other
+			entryNum--;
+
+			if(v->next->value->empty() == true) { // If this removal empties the embedded linked list, we have to delete it too, which means going through the whole pointer realignment procedure
+				ZipLLNode* newNext = v->next->next; // Save the to-be-deleted node's next
+				delete v->next; // Delete the offending node
+				v->next = newNext; // Connect the current node to the next valid one			
+
+			}
+			return;
+		}
+
+		v = v->next;
+	}
+	cout << "Zip code not found in LL!" << endl;
+	return;		
+}
+
 void ZipLinkedList::printZipEntries(int zip) {
 	ZipLLNode* v = head;
 	while(v != NULL) {
