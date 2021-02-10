@@ -75,7 +75,7 @@ void HashLinkedList::displayAll() {
 	}
 }
 
-void HashLinkedList::findEntry(int rin, int lookupMode) {
+bool HashLinkedList::findEntry(int rin, int lookupMode) {
 	LLNode* v = head;
 	while(v != NULL) {
 		if(v->voter.getRIN() == rin) {
@@ -84,13 +84,13 @@ void HashLinkedList::findEntry(int rin, int lookupMode) {
 			if(lookupMode == 1) {
 				v->voter.setVoted(1);
 			}
-			return;			
+			return 1;			
 		}
 
 		v = v->next;
 	}
 	cout << "Voter not found in LL!" << endl;
-	return;	
+	return 0;	
 }
 
 Voter HashLinkedList::getVoter(int rin) {
@@ -161,15 +161,21 @@ bool HashTable::lookup(const int key, int lookupMode) // Returns boolean whether
 			if(getVoter(key).getVoted() == 1) { // Only subtract from voted count if that voter has actually voted
 				votedNum--;
 			}
-			nodeArray[hash]->removeVoter(key);
-			cout << votedNum << " people have now voted." << endl;
+			
+			if(nodeArray[hash]->removeVoter(key) == 0) {
+				return 0;
+			}
+			else {
+				size--;
+				cout << votedNum << " people have now voted." << endl;
 
-			cout << "Number of voters in node: " << nodeArray[hash]->getListEntryNum() << endl;
+				cout << "Number of voters in node: " << nodeArray[hash]->getListEntryNum() << endl;
 
-			if(nodeArray[hash]->getListEntryNum() == 0) { // If this deletion empties the list, we can delete the whole node
-				delete nodeArray[hash];
-				nodeArray[hash] = nullptr;
-				cout << "Node deleted." << endl;
+				if(nodeArray[hash]->getListEntryNum() == 0) { // If this deletion empties the list, we can delete the whole node
+					delete nodeArray[hash];
+					nodeArray[hash] = nullptr;
+					cout << "Node deleted." << endl;
+				}
 			}
 		}
 		else if(lookupMode == 1) {
@@ -177,14 +183,26 @@ bool HashTable::lookup(const int key, int lookupMode) // Returns boolean whether
 				cerr << "This voter has already voted!" << endl;
 				return 0;
 			}
-			nodeArray[hash]->findVoter(key, lookupMode);
-			votedNum++;
-			cout << votedNum << " people have now voted." << endl;
+
+			if(nodeArray[hash]->findVoter(key, lookupMode) == 0) {
+				return 0;
+			}
+			else {
+				//nodeArray[hash]->findVoter(key, lookupMode);
+				votedNum++;
+				cout << votedNum << " people have now voted." << endl;
+				return 1;			
+			}
+
 		}
 		else {
-			nodeArray[hash]->findVoter(key, lookupMode);
+			if(nodeArray[hash]->findVoter(key, lookupMode) == 0) {
+				return 0;
+			}
+			else {
+				return 1;
+			}
 		}
-		return 1;
 	}
 	else {
 		cout << "Voter not found!" << endl;

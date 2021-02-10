@@ -1,6 +1,6 @@
 // Defines ZipLinkedList methods
 
-#include <iostream>
+//#include <iostream>
 
 #include "zipList.h"
 
@@ -43,6 +43,22 @@ bool ZipLinkedList::findEntry(int zip) {
 		v = v->next;
 	}
 	cout << "Zip code not found in LL!" << endl;
+	return 0;	
+}
+
+bool ZipLinkedList::findVoterInZip(int rin, int zip) { // Finds voter in zip list from zip code and RIN
+	ZipLLNode* v = head;
+	while(v != NULL) {
+		if(v->zipCode == zip) {
+			if(v->value->findEntry(rin, 0) == 1) {
+				cout << "Voter " << rin << " found at zip " << zip << " in LL!" << endl;
+				return 1;
+			}		
+		}
+
+		v = v->next;
+	}
+	cout << "Voter not found in zip LL!" << endl;
 	return 0;	
 }
 

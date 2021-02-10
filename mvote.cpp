@@ -1,8 +1,8 @@
 // Main file: takes command line arguments, parses files, processes user inputs
 
-#include<iostream>
+//#include<iostream>
 #include<fstream>
-#include<cstring> // For strcpy, strcmp, strtok, and strtol; the actual string container is not used as per requirements
+//#include<cstring> // For strcpy, strcmp, strtok, and strtol; the actual string container is not used as per requirements
 
 #include "mvote.h"
 #include "hashTable.h"
@@ -81,6 +81,8 @@ int main(int argc, char* args[]) {
 
 	while(true) {
 
+		cout << "Number of entries in hash table: " << hashTable->getSize() << endl;
+
 		cout << "Enter input: " << endl;
 
 		cin.getline(input, 100); // Turns out, you don't need strings to use getline! Found in the reference: http://www.cplusplus.com/reference/istream/istream/getline/
@@ -133,7 +135,7 @@ int main(int argc, char* args[]) {
 			else if(strcmp(command, "r") == 0) { // Register voter as having voted
 				char* endptr;
 				int searchedRIN = int(strtol(param1, &endptr, 10));
-				if(hashTable->lookup(searchedRIN, 1) == 0) { // Finds the voter and changes its status to having voted (the boolean handles the latter) - returns 0 if the person has already voted
+				if(hashTable->lookup(searchedRIN, 0) == 0 || hashTable->lookup(searchedRIN, 1) == 0) { // Check if the person we're trying to register is in fact NOT in the database OR has already voted
 					continue;
 				} 
 				cout << "Voter status changed!" << endl;
@@ -168,8 +170,14 @@ int main(int argc, char* args[]) {
 
 				hashTable->lookup(searchedRIN, 2); // Calls lookup with lookupMode 2 - search & destroy
 
-				cout << "Just before zip list deletion" << endl;
-				zipList->remove(searchedRIN, currentZipCode);
+				if(zipList->findVoterInZip(searchedRIN, currentZipCode) == 0) { // First look for the voter in the zip list and only delete if they're actually there
+					continue;
+				}
+				else {
+					cout << "Just before zip list deletion" << endl;
+					zipList->remove(searchedRIN, currentZipCode);					
+				}
+
 
 			}
 			else if(strcmp(command, "z") == 0) { // Display all entries in the zip list under the specified zip code

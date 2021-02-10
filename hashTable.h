@@ -3,7 +3,7 @@
 #ifndef HASHTABLE_H
 #define HASHTABLE_H
 
-#include <iostream>
+//#include <iostream>
 
 #include "mvote.h"
 
@@ -28,7 +28,7 @@ class HashLinkedList {
 		void removeFront();
 		void remove(int rin);
 		void displayAll();
-		void findEntry(int rin, int lookupMode);
+		bool findEntry(int rin, int lookupMode);
 		Voter getVoter(int rin);
 
 		HashLinkedList() : head(NULL) {};
@@ -78,18 +78,25 @@ class HashNode
 		int getListEntryNum() {
 			return this->value->getEntryNum();
 		}
-		void findVoter(int rin, int lookupMode) {
-			this->value->findEntry(rin, lookupMode);
+		bool findVoter(int rin, int lookupMode) {
+			if(this->value->findEntry(rin, lookupMode) == 1) {
+				return 1;
+			}
+			else {
+				return 0;
+			}
 		}
 		Voter getVoter(int rin) {
 			return this->value->getVoter(rin);
 		}
-		void removeVoter(int rin) {
-			if(this->value->empty() == false) {
+		bool removeVoter(int rin) {
+			if(this->value->empty() == false && this->value->findEntry(rin, 2) == 1) { // Only proceed to removal if the voter is actually there
 				this->value->remove(rin);
+				return 1;
 			}
 			else {
 				cerr << "Could not remove voter as it is not in the database." << endl;
+				return 0;
 			}
 			
 		}
@@ -106,6 +113,7 @@ class HashNode
 
 };
 
+// TO DO: fix potential size issues that mess up voter percentage calculation
 class HashTable
 {
 	private:

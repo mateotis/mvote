@@ -3,7 +3,7 @@
 #ifndef ZIPLIST_H
 #define ZIPLIST_H
 
-#include <iostream>
+//#include <iostream>
 
 #include "mvote.h"
 #include "hashTable.h"
@@ -43,6 +43,7 @@ class ZipLinkedList {
 		void remove(int rin, int zip);
 		void displayAll();
 		bool findEntry(int zip);
+		bool findVoterInZip(int rin, int zip);
 		bool insertEntry(int zip, Voter voter);
 		void printZipEntries(int zip);
 		void getZipVoterTotals();
