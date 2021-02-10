@@ -2,7 +2,7 @@
 
 #include<iostream>
 #include<fstream>
-#include<cstring> // For strcpy and strcmp; the actual string container is not used as per requirements
+#include<cstring> // For strcpy, strcmp, strtok, and strtol; the actual string container is not used as per requirements
 
 #include "mvote.h"
 #include "hashTable.h"
@@ -13,8 +13,7 @@ using namespace std;
 int main(int argc, char* args[]) {
 
 	// PARSING COMMAND LINE ARGUMENTS
-	//char* inputFile;
-	char* inputFile = (char*)malloc(30*sizeof(char));
+	char* inputFile = new char[30];
 	for(int i = 0; i < argc; i++) {
 		cout << typeid(args[i]).name() << endl;
 		if (strcmp(args[i], "-f") == 0) { // Can't use a simple == operator as args[i] elements have the weird "Pc" type
@@ -57,17 +56,6 @@ int main(int argc, char* args[]) {
 	{ // Got the idea to use this from the ifstream documentation: http://www.cplusplus.com/reference/istream/istream/operator%3E%3E/
 		bool voted = false;		
 
-/*		char* firstName2; // The actual name containers
-		char* lastName2;
-
-		// After days of struggle, I finally figured out the overwriting error - I didn't allocate memory for my char arrays properly
-		firstName2 = (char*)malloc(30*sizeof(char));
-		lastName2 = (char*)malloc(30*sizeof(char));
-
-		strncpy(firstName2, firstName, sizeof(firstName2));
-		strncpy(lastName2, lastName, sizeof(lastName2));*/
-
-		//cout << firstName2 << ' ' << lastName2 << endl;
 		Voter voter(rin, firstName, lastName, zipCode, voted);
 		cout << "right after voter object init" << endl;
 
@@ -77,26 +65,19 @@ int main(int argc, char* args[]) {
 	}
 
 	fin.close();
-	//free(inputFile);
+	//delete[] inputFile;
 
 	hashTable->scanTable();
 
 	// PROCESSING USER INPUT AND EXECUTING COMMANDS
 	// Initialise and allocate memory for all potential user inputs: the longest command will have four parametres, anything extra should be dealt with appropriately
-	char* input;
-	char* command;
-	char* param1;
-	char* param2;
-	char* param3;
-	char* param4;
-	char* extraInput;
-	input = (char*)malloc(100*sizeof(char));
-	command = (char*)malloc(30*sizeof(char));
-	param1 = (char*)malloc(30*sizeof(char));
-	param2 = (char*)malloc(30*sizeof(char));
-	param3 = (char*)malloc(30*sizeof(char));
-	param4 = (char*)malloc(30*sizeof(char));
-	extraInput = (char*)malloc(30*sizeof(char));
+	char* input = new char[100];
+	char* command = new char[30];
+	char* param1 = new char[30];
+	char* param2 = new char[30];
+	char* param3 = new char[30];
+	char* param4 = new char[30];
+	char* extraInput = new char[30];
 
 	while(true) {
 
@@ -117,7 +98,13 @@ int main(int argc, char* args[]) {
 			if(strcmp(command, "exit") == 0) { // TO DO - release all memory before exiting
 				delete hashTable;
 				delete zipList;
-				free(input);
+				delete[] input;
+/*				delete[] command;
+				delete[] param1;
+				delete[] param2;
+				delete[] param3;
+				delete[] param4;
+				delete[] extraInput;*/
 				exit(0);
 			}
 			if(strcmp(command, "v") == 0) { // Display how many people in total have voted
@@ -146,7 +133,9 @@ int main(int argc, char* args[]) {
 			else if(strcmp(command, "r") == 0) { // Register voter as having voted
 				char* endptr;
 				int searchedRIN = int(strtol(param1, &endptr, 10));
-				hashTable->lookup(searchedRIN, 1); // Finds the voter and changes its status to having voted (the boolean handles the latter)
+				if(hashTable->lookup(searchedRIN, 1) == 0) { // Finds the voter and changes its status to having voted (the boolean handles the latter) - returns 0 if the person has already voted
+					continue;
+				} 
 				cout << "Voter status changed!" << endl;
 
 				// After we registered the voter in the main hash table, we have to add them to the zip code list as well
@@ -247,15 +236,6 @@ int main(int argc, char* args[]) {
 				char* endptr;
 				int rin = int(strtol(param1, &endptr, 10));
 				int zipCode = int(strtol(param4, &endptr, 10));	
-
-/*				char* firstName;
-				char* lastName;
-
-				firstName = (char*)malloc(30*sizeof(char)); // Same setup as in the initial file parsing
-				lastName = (char*)malloc(30*sizeof(char));
-
-				strncpy(firstName, param2, sizeof(firstName));
-				strncpy(lastName, param3, sizeof(lastName));	*/	
 
 				bool voted = false;
 

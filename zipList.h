@@ -1,3 +1,5 @@
+// Declares/defines the data structures used in the zip code implementation: a linked list with zip codes, an embedded linked list with voter data, and their respective nodes
+
 #ifndef ZIPLIST_H
 #define ZIPLIST_H
 
@@ -32,23 +34,37 @@ class ZipLLNode {
 };
 
 class ZipLinkedList {
+	private:
+		ZipLLNode* head;
+		int entryNum = 0; // How many entries in the linked list
 	public:
-		ZipLinkedList();
-		~ZipLinkedList();
-		bool empty() const;
-		int& front() const;
 		void addFront(const int& e, const Voter& f);
 		void removeFront();
 		void remove(int rin, int zip);
 		void displayAll();
-		int getEntryNum();
 		bool findEntry(int zip);
 		bool insertEntry(int zip, Voter voter);
 		void printZipEntries(int zip);
 		void getZipVoterTotals();
-	private:
-		ZipLLNode* head;
-		int entryNum = 0; // How many entries in the linked list
+
+		ZipLinkedList() : head(NULL) {};
+
+		~ZipLinkedList() {
+			while (!empty()) removeFront(); 
+		}
+
+		bool empty() const {
+			return head == NULL;
+		}
+
+		int& front() const {
+			return head->zipCode;
+		}
+
+		int getEntryNum() {
+			return entryNum;
+		}
+
 };
 
 #endif

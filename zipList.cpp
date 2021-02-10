@@ -1,22 +1,10 @@
+// Defines ZipLinkedList methods
+
 #include <iostream>
 
 #include "zipList.h"
 
 using namespace std;
-
-ZipLinkedList::ZipLinkedList() : head(NULL) {};
-
-ZipLinkedList::~ZipLinkedList() {
-	while (!empty()) removeFront(); 
-}
-
-bool ZipLinkedList::empty() const {
-	return head == NULL;
-}
-
-int& ZipLinkedList::front() const {
-	return head->zipCode;
-}
 
 void ZipLinkedList::addFront(const int& e, const Voter& f) {
 	ZipLLNode* v = new ZipLLNode;
@@ -42,10 +30,6 @@ void ZipLinkedList::displayAll() {
 		v->value->displayAll();
 		v = v->next;
 	}
-}
-
-int ZipLinkedList::getEntryNum() {
-	return entryNum;
 }
 
 bool ZipLinkedList::findEntry(int zip) {

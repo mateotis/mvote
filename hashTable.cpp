@@ -1,24 +1,10 @@
-// Defines all of the linked list and the major hash table functions
+// Defines all of the major functions for the hash table and its accompanying linked list
 
 #include <iostream>
 
 #include "hashTable.h"
 
 using namespace std;
-
-HashLinkedList::HashLinkedList() : head(NULL) {};
-
-HashLinkedList::~HashLinkedList() {
-	while (!empty()) removeFront(); 
-}
-
-bool HashLinkedList::empty() const {
-	return head == NULL;
-}
-
-Voter& HashLinkedList::front() const {
-	return head->voter;
-}
 
 void HashLinkedList::addFront(const Voter& e) {
 	LLNode* v = new LLNode;
@@ -125,9 +111,6 @@ Voter HashLinkedList::getVoter(int rin) {
 	return dummyVoter;
 }
 
-int HashLinkedList::getEntryNum() {
-	return entryNum;
-}
 
 int HashTable::hashCode(const int key) // Very simple hashing function
 {
@@ -190,6 +173,10 @@ bool HashTable::lookup(const int key, int lookupMode) // Returns boolean whether
 			}
 		}
 		else if(lookupMode == 1) {
+			if(getVoter(key).getVoted() == 1) { // This prevents voter fraud - one person voting multiple times
+				cerr << "This voter has already voted!" << endl;
+				return 0;
+			}
 			nodeArray[hash]->findVoter(key, lookupMode);
 			votedNum++;
 			cout << votedNum << " people have now voted." << endl;

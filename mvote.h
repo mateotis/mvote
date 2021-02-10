@@ -24,19 +24,12 @@ class Voter {
 			this->zipCode = 0;
 			this->voted = false;
 		}
-		//Voter(int inputRIN, char inputFN[30], char inputLN[30], int inputZip, bool inputVoted) : rin(inputRIN),firstName(inputFN),lastName(inputLN),zipCode(inputZip),voted(inputVoted) {} // Constructor for a voter with all the info
 
 		Voter(int inputRIN, char inputFN[30], char inputLN[30], int inputZip, bool inputVoted) {
 
 			// After days of struggle, I finally figured out the overwriting error - I didn't allocate memory for my char arrays properly
-			//this->firstName = (char*)malloc(30*sizeof(char));
-			//this->lastName = (char*)malloc(30*sizeof(char));
-
 			this->firstName = new char[30];
 			this->lastName = new char[30];
-
-			//free(this->firstName);
-			//free(this->lastName);
 
 			strncpy(this->firstName, inputFN, sizeof(this->firstName));
 			strncpy(this->lastName, inputLN, sizeof(this->lastName));

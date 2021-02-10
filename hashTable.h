@@ -11,30 +11,43 @@ using namespace std;
 
 // Linked list that the hash nodes point to, contains voter data - based on implementations in Data Structures labs
 class LLNode {
-private:
-	Voter voter;
-	LLNode* next;
+	private:
+		Voter voter;
+		LLNode* next;
 
-	friend class HashLinkedList;
-	friend class ZipVoterLinkedList;
+		friend class HashLinkedList;
+		friend class ZipVoterLinkedList;
 };
 
 class HashLinkedList {
+	private:
+		LLNode* head;
+		int entryNum = 0; // How many entries in the linked list
 	public:
-		HashLinkedList();
-		~HashLinkedList();
-		bool empty() const;
-		Voter& front() const;
 		void addFront(const Voter& e);
 		void removeFront();
 		void remove(int rin);
 		void displayAll();
-		int getEntryNum();
 		void findEntry(int rin, int lookupMode);
 		Voter getVoter(int rin);
-	private:
-		LLNode* head;
-		int entryNum = 0; // How many entries in the linked list
+
+		HashLinkedList() : head(NULL) {};
+
+		~HashLinkedList() {
+			while (!empty()) removeFront(); 
+		}
+
+		bool empty() const {
+			return head == NULL;
+		}
+
+		Voter& front() const {
+			return head->voter;
+		}
+
+		int getEntryNum() {
+			return entryNum;
+		}
 };
 
 
@@ -111,7 +124,6 @@ class HashTable
 		void insert(const int key, Voter value, bool& insertSuccess);
 		bool lookup(const int key, int lookupMode);
 		Voter getVoter(const int rin);
-		//void remove(const int key);
 
 		int getSize()
 		{
@@ -131,7 +143,7 @@ class HashTable
 				}
 			}
 			cout << "Scanned " << cnt << " nodes." << endl;
-			return;	
+			return;
 		}
 
 		float calcPercVoted() { // Returns percentage of people who voted
