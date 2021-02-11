@@ -4,7 +4,7 @@
 #define MVOTE_H
 
 #include<iostream>
-#include<cstring>
+#include<cstring> // For strcpy, strcmp, strtok, and strtol; the actual string container is not used as per requirements
 
 using namespace std;
 
@@ -30,7 +30,7 @@ class Voter {
 			this->firstName = new char[30];
 			this->lastName = new char[30];
 
-			strncpy(this->firstName, inputFN, sizeof(this->firstName));
+			strncpy(this->firstName, inputFN, sizeof(this->firstName)); // Copy the content into the container char arrays; this ensures that they are all properly present
 			strncpy(this->lastName, inputLN, sizeof(this->lastName));
 
 			this->rin = inputRIN;
@@ -52,27 +52,16 @@ class Voter {
 		bool getVoted() {
 			return this->voted;
 		}
-		void getVoterInfo() {
+		void getVoterInfo() { // Prints out all the voter info in one line
 			cout << this->getRIN() << ' ' << this->getFirstName() << ' ' << this->getLastName() << ' ' << this->getZipCode() << ' '<< this->getVoted() << '\n';
 			return;
 		}
-		void setVoted(bool votedChange) {
+		void setVoted(bool votedChange) { // Change registration status
 			this->voted = votedChange;
 			return;
 		}
 
-/*		void deleteChars() { // Using a separate method to free up the malloc'd class variables (called when we're deleting the class object as a whole) because the destructor is called automatically upon insertion, and this is a handy work-around
-			cout << "Deleting class char: " << this->firstName << endl;
-			cout << "Deleting class char: " << this->lastName << endl;
-			delete[] this->firstName;
-			delete[] this->lastName;
-		}*/
-
-		~Voter() {
-			cout << "Calling Voter destructor on RIN and zip: " << rin << " " << zipCode << endl;
-			//delete[] this->firstName;
-			//delete[] this->lastName;			
-		}
+		~Voter() {}
 
 };
 

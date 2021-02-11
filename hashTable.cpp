@@ -1,12 +1,10 @@
 // Defines all of the major functions for the hash table and its accompanying linked list
 
-#include <iostream>
-
 #include "hashTable.h"
 
 using namespace std;
 
-void HashLinkedList::addFront(const Voter& e) {
+void HashLinkedList::addFront(const Voter& e) { // Standard pointer realignment procedures
 	LLNode* v = new LLNode;
 	v->voter = e;
 	v->next = head;
@@ -21,20 +19,16 @@ void HashLinkedList::removeFront() {
 	entryNum--;
 }
 
-void HashLinkedList::remove(int rin) {
+void HashLinkedList::remove(int rin) { // Remove a voter with the given RIN from the hash table; as with the zip list, we have to be careful here
 	LLNode* v = head;
 	LLNode* temp = head; // Temp variable to help keep list structure intact while removing; initially set to the head as that's the first case we look at
 
-	if(v->voter.getRIN() == rin) {
-		cout << "Found voter to delete at the head!" << endl;
-		head = temp->next;
-		//v->next->voter.deleteChars(); // Delete the Voter object
-		//delete temp->voter;
+	if(v->voter.getRIN() == rin) { // If this triggers, that means the very first entry (the head) is what we need to delete
+		head = temp->next; // We move the head to the next entry, then delete the old head
 		delete temp;
-		entryNum--;
+		entryNum--; // Keeping accurate track of the number of entries in the table
 
 		if(entryNum == 0) { // If we're out of entries now, just delete the head as well to make cleaning up the linked list easier
-			cout << "Head deleted." << endl;
 			delete head;
 			head = NULL;
 		}
@@ -43,16 +37,12 @@ void HashLinkedList::remove(int rin) {
 
 	while(v != NULL) {
 		if(v->next->voter.getRIN() == rin) { // Always looking one step ahead, since we can't iterate backwards (this being a singly linked list)
-			cout << "Found voter to delete!" << endl;
 			LLNode* newNext = v->next->next; // Save the to-be-deleted node's next
-			//v->next->voter.deleteChars(); // Delete the Voter object
-			//delete v->next->voter;
 			delete v->next; // Delete the offending node
 			v->next = newNext; // Connect the current node to the next valid one
 			entryNum--;
 
 			if(entryNum == 0) { // If we're out of entries now, just delete the head as well to make cleaning up the linked list easier
-				cout << "Head deleted." << endl;
 				delete head;
 				head = NULL;
 			}
@@ -62,12 +52,12 @@ void HashLinkedList::remove(int rin) {
 		v = v->next;
 	}
 
-	cout << "Voter not found in LL!" << endl;
+	cerr << "Voter not found!" << endl;
 	return;
 	
 }
 
-void HashLinkedList::displayAll() {
+void HashLinkedList::displayAll() { // Similar display function to ZipLinkedList's
 	LLNode* v = head;
 	while(v != NULL) {
 		v->voter.getVoterInfo();
@@ -75,13 +65,12 @@ void HashLinkedList::displayAll() {
 	}
 }
 
-bool HashLinkedList::findEntry(int rin, int lookupMode) {
+bool HashLinkedList::findEntry(int rin, int lookupMode) { // As the name says, this function finds a specific voter by RIN and either prints it (for lookup) or registers it
 	LLNode* v = head;
 	while(v != NULL) {
 		if(v->voter.getRIN() == rin) {
-			cout << "Voter found in LL!" << endl;
 			v->voter.getVoterInfo();
-			if(lookupMode == 1) {
+			if(lookupMode == 1) { // Register the voter as having voted
 				v->voter.setVoted(1);
 			}
 			return 1;			
@@ -89,25 +78,23 @@ bool HashLinkedList::findEntry(int rin, int lookupMode) {
 
 		v = v->next;
 	}
-	cout << "Voter not found in LL!" << endl;
 	return 0;	
 }
 
-Voter HashLinkedList::getVoter(int rin) {
+Voter HashLinkedList::getVoter(int rin) { // Retrieves the voter
 	LLNode* v = head;
 	while(v != NULL) {
 		if(v->voter.getRIN() == rin) {
-			cout << "getVoter() found the voter!" << endl;
 			return v->voter;	
 		}
 
 		v = v->next;
 	}
 
-	cerr << "Could not delete voter as it was not found in the database." << endl;
+	cerr << "Could not delete voter as it was not found in the database." << endl; // This should never occur in normal operation, but if it does, it's bad form to return nothing (as this isn't a void function) - so we declare a dummy voter object that is checked against
 	char dummyFN[30] = "DUMMY";
 	char dummyLN[30] = "VOTER";
-	Voter dummyVoter(0, dummyFN, dummyLN, 0, 0); // In case the user tries to delete an entry that's not in the table, return a dummy to prevent crashing
+	Voter dummyVoter(0, dummyFN, dummyLN, 0, 0); 
 	return dummyVoter;
 }
 
@@ -118,84 +105,63 @@ int HashTable::hashCode(const int key) // Very simple hashing function
 	return key % capacity; // To ensure we stay within bounds of the table
 }
 
-void HashTable::insert(const int key, Voter value, bool& insertSuccess) // Insertion through separate chaining
+void HashTable::insert(const int key, Voter value) // Inserting voter into the table through separate chaining
 {
-	int hash = hashCode(key);
-	//cout << "Insertion hash: " << hash << endl;
-	int count = 0;
+	int hash = hashCode(key); // Calculate the hash
 	while(true) {
-		count++;
 		if(nodeArray[hash] == nullptr) { // If we have an empty space, put the node there
 			nodeArray[hash] = new HashNode(hash, value);
-			//cout << "Comparisons made in table: " << count << endl;
 			size++;
-			insertSuccess = true;
-			//cout << "Inserted into new hash ";
-			nodeArray[hash]->getVoterInfo();
-			cout << "Linked list in hash node " << hash << " has " << nodeArray[hash]->getListEntryNum() << " entries." << endl;
 			return;
 		}
-		else if(nodeArray[hash] != nullptr) {
+		else if(nodeArray[hash] != nullptr) { // If there is already a node at that hash, append to the linked list within
 			nodeArray[hash]->insertVoter(value);
-			//cout << "Comparisons made in table: " << count << endl;
 			size++;
-			insertSuccess = true;
-			//cout << "Inserted at existing hash ";
-			nodeArray[hash]->getVoterInfo();
-			cout << "Linked list in hash node " << hash << " has " << nodeArray[hash]->getListEntryNum() << " entries." << endl;
 			return;
 		}	
 	}
 
 }
 
-bool HashTable::lookup(const int key, int lookupMode) // Returns boolean whether the voter was found or not; also handles vote registering with another handy boolean
+bool HashTable::lookup(const int key, int lookupMode) // A powerful function that actually handles three things: simple lookup, registration, and even deletion; its mode given to it by the lookupMode variable
 {
 	int hash = hashCode(key);
 	if(nodeArray[hash] != nullptr) {
-		cout << "Currently searched node: " << nodeArray[hash]->getKey() << endl;
-		cout << "Current number of voters: " << votedNum << endl;
 
 		// lookupMode: making use of an int to make the lookup() function achieve different things - 0 is find, 1 is find and register, 2 is find and delete
-		if(lookupMode == 2) {
+		if(lookupMode == 2) { // Deletion
 			if(getVoter(key).getVoted() == 1) { // Only subtract from voted count if that voter has actually voted
 				votedNum--;
 			}
 			
-			if(nodeArray[hash]->removeVoter(key) == 0) {
+			if(nodeArray[hash]->removeVoter(key) == 0) { // Attempts removal - if unsuccessful, returns 0, if successful, we're good
 				return 0;
 			}
 			else {
 				size--;
-				cout << votedNum << " people have now voted." << endl;
-
-				cout << "Number of voters in node: " << nodeArray[hash]->getListEntryNum() << endl;
 
 				if(nodeArray[hash]->getListEntryNum() == 0) { // If this deletion empties the list, we can delete the whole node
 					delete nodeArray[hash];
 					nodeArray[hash] = nullptr;
-					cout << "Node deleted." << endl;
 				}
 			}
 		}
-		else if(lookupMode == 1) {
-			if(getVoter(key).getVoted() == 1) { // This prevents voter fraud - one person voting multiple times
+		else if(lookupMode == 1) { // Register
+			if(getVoter(key).getVoted() == 1) { // This prevents voter fraud (one person voting multiple times) :)
 				cerr << "This voter has already voted!" << endl;
 				return 0;
 			}
 
-			if(nodeArray[hash]->findVoter(key, lookupMode) == 0) {
+			if(nodeArray[hash]->findVoter(key, lookupMode) == 0) { // If we could not register the voter, return 0, otherwise return 1
 				return 0;
 			}
 			else {
-				//nodeArray[hash]->findVoter(key, lookupMode);
-				votedNum++;
-				cout << votedNum << " people have now voted." << endl;
+				votedNum++; // Keeping track of the voter count for easy check
 				return 1;			
 			}
 
 		}
-		else {
+		else { // Lookup
 			if(nodeArray[hash]->findVoter(key, lookupMode) == 0) {
 				return 0;
 			}
@@ -215,14 +181,14 @@ bool HashTable::lookup(const int key, int lookupMode) // Returns boolean whether
 Voter HashTable::getVoter(const int rin) { // Gets a specific Voter object, needed (ironically) for zip code list handling
 	int hash = hashCode(rin);
 
-	if(nodeArray[hash] == nullptr) {
+	if(nodeArray[hash] == nullptr) { // As mentioned before, this shouldn't happen, but it might, so we have to be prepared for it
 		cerr << "Could not delete voter as it was not found in the database." << endl;
 		char dummyFN[30] = "DUMMY";
 		char dummyLN[30] = "VOTER";
-		Voter dummyVoter(0, dummyFN, dummyLN, 0, 0); // In case the user tries to delete an entry that's not in the table, return a dummy to prevent crashing
+		Voter dummyVoter(0, dummyFN, dummyLN, 0, 0);
 		return dummyVoter;
 	}
-	else {
+	else { // Otherwise, proceed to retrieving the voter from the linked list
 		return nodeArray[hash]->getVoter(rin);
 	}
 	

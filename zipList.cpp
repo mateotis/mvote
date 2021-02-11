@@ -6,7 +6,7 @@
 
 using namespace std;
 
-void ZipLinkedList::addFront(const int& e, const Voter& f) {
+void ZipLinkedList::addFront(const int& e, const Voter& f) { // Add a new element to the zip list, which is actually three things: a new zip node, a new linked list WITHIN that zip node, and the voter WITHIN that linked list
 	ZipLLNode* v = new ZipLLNode;
 	v->zipCode = e;
 	v->value = new ZipVoterLinkedList;
@@ -23,7 +23,7 @@ void ZipLinkedList::removeFront() {
 	entryNum--;
 }
 
-void ZipLinkedList::displayAll() {
+void ZipLinkedList::displayAll() { // Displays all entries in the zip list, used for debugging and printZipEntries()
 	ZipLLNode* v = head;
 	while(v != NULL) {
 		cout << v->zipCode << endl;
@@ -32,37 +32,33 @@ void ZipLinkedList::displayAll() {
 	}
 }
 
-bool ZipLinkedList::findEntry(int zip) {
+bool ZipLinkedList::findEntry(int zip) { // Checks whether zip code is in the list, used to determine method of insertion
 	ZipLLNode* v = head;
 	while(v != NULL) {
 		if(v->zipCode == zip) {
-			cout << "Zip code " << zip << " found in LL!" << endl;
 			return 1;			
 		}
 
 		v = v->next;
 	}
-	cout << "Zip code not found in LL!" << endl;
 	return 0;	
 }
 
 bool ZipLinkedList::findVoterInZip(int rin, int zip) { // Finds voter in zip list from zip code and RIN
 	ZipLLNode* v = head;
 	while(v != NULL) {
-		if(v->zipCode == zip) {
-			if(v->value->findEntry(rin, 0) == 1) {
-				cout << "Voter " << rin << " found at zip " << zip << " in LL!" << endl;
+		if(v->zipCode == zip) { // Same process as findEntry() so far but we go a step further 
+			if(v->value->findEntry(rin, 0) == 1) { // Only return 1 if we actually found the voter under that zip
 				return 1;
 			}		
 		}
 
 		v = v->next;
 	}
-	cout << "Voter not found in zip LL!" << endl;
 	return 0;	
 }
 
-bool ZipLinkedList::insertEntry(int zip, Voter voter) {
+bool ZipLinkedList::insertEntry(int zip, Voter voter) { // Voter insertion into existing zip node - addFront() is used for creating new nodes
 	ZipLLNode* v = head;
 	while(v != NULL) {
 		if(v->zipCode == zip) { // First we find the right node
@@ -74,16 +70,14 @@ bool ZipLinkedList::insertEntry(int zip, Voter voter) {
 
 		v = v->next;
 	}
-	cout << "Insertion unsuccessful!" << endl;
+	cerr << "Insertion unsuccessful!" << endl;
 	return 0;	
 }
 
-void ZipLinkedList::remove(int rin, int zip) {
-	cout << "In zip list removal function" << endl;
+void ZipLinkedList::remove(int rin, int zip) { // Remove voter from zip list - a somewhat complicated method that has to account for a lot of things
 	ZipLLNode* v = head;
 	while(v != NULL) {
 		if(v->zipCode == zip && v == head) { // If we find it right away at the head, it's a special procedure
-			cout << "Zip code " << zip << " found in LL head! Proceeding to deletion." << endl;
 			v->value->remove(rin);
 
 			if(v->value->empty() == true) { // If this removal empties the embedded linked list, we have to delete it too, which means going through the whole pointer realignment procedure
@@ -95,8 +89,7 @@ void ZipLinkedList::remove(int rin, int zip) {
 			return;
 		}
 
-		else if(v->next->zipCode == zip) { // Again, gotta stay one step ahead, because we might have to delete the entire embedded linked list
-			cout << "Zip code " << zip << " found in LL! Proceeding to deletion." << endl;
+		else if(v->next->zipCode == zip) { // We have to stay one step ahead, because we might have to delete the entire embedded linked list
 			v->next->value->remove(rin); // ZipVoterLinkedList inherits from HashLinkedList, so this remove function is identical to the other
 			entryNum--;
 
@@ -111,11 +104,11 @@ void ZipLinkedList::remove(int rin, int zip) {
 
 		v = v->next;
 	}
-	cout << "Zip code not found in LL!" << endl;
+	cerr << "Zip code not found in LL!" << endl;
 	return;		
 }
 
-void ZipLinkedList::printZipEntries(int zip) {
+void ZipLinkedList::printZipEntries(int zip) { // Prints out entries for one specific zip code
 	ZipLLNode* v = head;
 	while(v != NULL) {
 		if(v->zipCode == zip) {
@@ -125,39 +118,27 @@ void ZipLinkedList::printZipEntries(int zip) {
 
 		v = v->next;
 	}
-	cout << "No entries for this zip code." << endl;
+	cout << "No entries for this zip code." << endl; // Unless of course we don't have any
 	return;
 }
 
-void ZipLinkedList::getZipVoterTotals() { // Used for the o command - gets the zip codes in the list and the number of voters who have voted in each
+void ZipLinkedList::getZipVoterTotals() { // Used for the o command - gets the zip codes in the list and the number of voters who have voted in each, then sorts them
 	if(entryNum == 0) { // If there's nothing in the big linked list, there's no use diving into the embedded ones
 		cout << "There are currently no entries in the zip list." << endl;
 		return;
 	}
 
 	ZipLLNode* v = head;
-	int zipListStats[entryNum][2] = {0}; // 2D array to store all the zip codes and their # of voters - we know its max size in advance, which is very helpful
+	int zipListStats[entryNum][2] = {0}; // 2D array to store all the zip codes and their # of voters - we know its max size in advance, which is very helpful; oh and we also initialise all its elements to 0 at the start
 	int cnt = 0;
-	while(v != NULL) { // Otherwise, iterate over every node and query every embedded linked list for its number of entries
-		cout << v->zipCode << " has this many voters: " << v->value->getEntryNum() << endl;
-		zipListStats[cnt][0] = v->zipCode;
+	while(v != NULL) { // If we do have something, iterate over every node and query every embedded linked list for its number of entries
+		zipListStats[cnt][0] = v->zipCode; // We save two things: the zip code and the number of voters in that zip code
 		zipListStats[cnt][1] = v->value->getEntryNum();
 		cnt++;
 		v = v->next;
 	}
 
-	cout << "ZIP LIST STATS" << endl;
-	for(int i = 0; i < entryNum; i++) {
-		for(int j = 0; j < 2; j++) {
-			if(zipListStats[i][0] != 0) { // If there is more than one voter in any given zip code, zipListStats will have rows with 0s as it's set to total entryNum size; we can ignore those 0 lines
-				cout << zipListStats[i][j] << " ";
-			}
-		}
-		if(zipListStats[i][0] != 0) {
-			cout << endl;
-		}
-	}
-
+	// Now that we have a 2D array with all our zip codes and voters, it's time to sort it!
 	int sortedZipListStats[entryNum][2] = {0};
 	int currentMaxZip = 0;
 	int currentMaxNum = 0;
@@ -171,7 +152,7 @@ void ZipLinkedList::getZipVoterTotals() { // Used for the o command - gets the z
 				currentMaxLoc = j;
 			}
 		}
-		sortedZipListStats[i][0] = currentMaxZip;
+		sortedZipListStats[i][0] = currentMaxZip; // At the end of each loop, we set the earliest available point to the maxes
 		sortedZipListStats[i][1] = currentMaxNum;
 
 		zipListStats[currentMaxLoc][1] = 0; // Set what we just found to 0 in the original array; ensures we won't find it again next time - I think it's a pretty elegant solution!
@@ -180,11 +161,11 @@ void ZipLinkedList::getZipVoterTotals() { // Used for the o command - gets the z
 		currentMaxNum = 0;
 	}
 
-
+	// Finally, we just print the sorted list in order, since we constructed it to be descending!
 	cout << "SORTED ZIP LIST STATS" << endl;
 	for(int i = 0; i < entryNum; i++) {
 		for(int j = 0; j < 2; j++) {
-			if(sortedZipListStats[i][0] != 0) {
+			if(sortedZipListStats[i][0] != 0) { // Ignore any extra 0s that might have remained after filling up the array
 				cout << sortedZipListStats[i][j] << " ";
 			}
 		}

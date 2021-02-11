@@ -1,8 +1,6 @@
 // Main file: takes command line arguments, parses files, processes user inputs
 
-//#include<iostream>
 #include<fstream>
-//#include<cstring> // For strcpy, strcmp, strtok, and strtol; the actual string container is not used as per requirements
 
 #include "mvote.h"
 #include "hashTable.h"
@@ -15,7 +13,6 @@ int main(int argc, char* args[]) {
 	// PARSING COMMAND LINE ARGUMENTS
 	char* inputFile = new char[30];
 	for(int i = 0; i < argc; i++) {
-		cout << typeid(args[i]).name() << endl;
 		if (strcmp(args[i], "-f") == 0) { // Can't use a simple == operator as args[i] elements have the weird "Pc" type
 			inputFile = args[i+1];
 		}
@@ -26,7 +23,6 @@ int main(int argc, char* args[]) {
 		return -1;
 	}
 
-	cout << inputFile << endl;
 	ifstream fin;
 	fin.open(inputFile);
 	if(!fin) { // Fallback in case we can't open the file for whatever reason
@@ -49,7 +45,7 @@ int main(int argc, char* args[]) {
 	fin.open(inputFile);
 
 	// Initialising our main data structures
-	HashTable* hashTable = new HashTable(lineCount * 2); // Dynamically generate hash table: double the size of the input file should give us enough space to work with
+	HashTable* hashTable = new HashTable(lineCount * 2); // Dynamically generate hash table: double the size of the input file should give us enough space to work with as it reduces the load factor of the table
 	ZipLinkedList* zipList = new ZipLinkedList();
 
 	while (fin >> rin >> firstName >> lastName >> zipCode) // Since the format of each line is the same, we can tell the program exactly what is what
@@ -57,17 +53,13 @@ int main(int argc, char* args[]) {
 		bool voted = false;		
 
 		Voter voter(rin, firstName, lastName, zipCode, voted);
-		cout << "right after voter object init" << endl;
 
-		bool insertSuccess = false;
-		hashTable->insert(rin, voter, insertSuccess);
-		cout << "right after insertion" << endl;
+		hashTable->insert(rin, voter);
 	}
 
 	fin.close();
-	//delete[] inputFile;
 
-	hashTable->scanTable();
+	cout << hashTable->getSize() << " voters successfully inserted into hash table." << endl;
 
 	// PROCESSING USER INPUT AND EXECUTING COMMANDS
 	// Initialise and allocate memory for all potential user inputs: the longest command will have four parametres, anything extra should be dealt with appropriately
@@ -81,8 +73,6 @@ int main(int argc, char* args[]) {
 
 	while(true) {
 
-		cout << "Number of entries in hash table: " << hashTable->getSize() << endl;
-
 		cout << "Enter input: " << endl;
 
 		cin.getline(input, 100); // Turns out, you don't need strings to use getline! Found in the reference: http://www.cplusplus.com/reference/istream/istream/getline/
@@ -93,14 +83,13 @@ int main(int argc, char* args[]) {
 			cerr << "Input cannot be empty." << endl;
 			continue;
 		}
-		cout << "Command: " << command << endl;
 
 		param1 = strtok(NULL, " ");
-		if(param1 == NULL) { // Only one command - used for paramaterless inputs, like v or perc
-			if(strcmp(command, "exit") == 0) { // TO DO - release all memory before exiting
+		if(param1 == NULL) { // Only one command - used for parameterless inputs, like v or perc
+			if(strcmp(command, "exit") == 0) {
 				delete hashTable;
 				delete zipList;
-				delete[] input;
+				delete[] input; // This is the only char array in this segment that always needs to be deleted - the rest sometimes cause a segfault if deleted manually
 /*				delete[] command;
 				delete[] param1;
 				delete[] param2;
@@ -115,12 +104,11 @@ int main(int argc, char* args[]) {
 			else if(strcmp(command, "perc") == 0) { // Display the percentage of people who have voted
 				cout << hashTable->calcPercVoted() << " percent of voters in the hash table have voted." << endl;
 			}
-			else if(strcmp(command, "o") == 0) {
+			else if(strcmp(command, "o") == 0) { // Print a list of zip codes in descending order based on the number of voters in each 
 				zipList->getZipVoterTotals();
 			}
 			continue;
 		}
-		cout << "First parameter: " << param1 << endl;
 
 		param2 = strtok(NULL, " ");
 		if(param2 == NULL) { // One parameter - used for entry lookup, deletion, and voter registration
@@ -136,6 +124,7 @@ int main(int argc, char* args[]) {
 				char* endptr;
 				int searchedRIN = int(strtol(param1, &endptr, 10));
 				if(hashTable->lookup(searchedRIN, 0) == 0 || hashTable->lookup(searchedRIN, 1) == 0) { // Check if the person we're trying to register is in fact NOT in the database OR has already voted
+					cerr << "Voter not found!" << endl;
 					continue;
 				} 
 				cout << "Voter status changed!" << endl;
@@ -146,16 +135,10 @@ int main(int argc, char* args[]) {
 
 				if(zipList->findEntry(currentZipCode) == 0) { // Look for the zip code first - if it's not in the list, add it and create a new embedded LL with the voter inside
 						zipList->addFront(currentZipCode, currentVoter);
-						cout << "Added to zip list!" << endl;
 				}
 				else { // If the zip code is already present, insert the voter into the existing embedded LL
 					zipList->insertEntry(currentZipCode, currentVoter);
-					cout << "Added to zip list!" << endl;
 				}
-				cout << "Current entries in zip list: " << zipList->getEntryNum() << endl;
-
-				cout << "Zip code list:" << endl;
-				zipList->displayAll();				
 			}
 			else if(strcmp(command, "d") == 0) { // Delete specified voter
 				char* endptr;
@@ -163,6 +146,7 @@ int main(int argc, char* args[]) {
 				Voter currentVoter = hashTable->getVoter(searchedRIN); // Fetch the voter before we remove it so we can get its zip
 
 				if(currentVoter.getRIN() == 0 && currentVoter.getZipCode() == 0) { // If we get a dummy voter return from getVoter() with these values, that means the voter wasn't found 
+					cerr << "Voter not found!" << endl;
 					continue;
 				}
 
@@ -174,7 +158,6 @@ int main(int argc, char* args[]) {
 					continue;
 				}
 				else {
-					cout << "Just before zip list deletion" << endl;
 					zipList->remove(searchedRIN, currentZipCode);					
 				}
 
@@ -195,22 +178,22 @@ int main(int argc, char* args[]) {
 					return -1;
 				}
 
-				while (fin >> rinEntry)	 { // Just execute lookup commands for every line in the file
-					hashTable->lookup(rinEntry, 1);
-					cout << "Voter status changed!" << endl;
+				while (fin >> rinEntry)	 { // Just execute lookup commands in register mode for every line in the file
+
+					if(hashTable->lookup(rinEntry, 0) == 0 || hashTable->lookup(rinEntry, 1) == 0) { // Check if the person we're trying to register is in fact NOT in the database OR has already voted
+						cout << "Voter not found!" << endl;
+						continue;
+					} 
 
 					Voter currentVoter = hashTable->getVoter(rinEntry);
 					int currentZipCode = currentVoter.getZipCode();
 
 					if(zipList->findEntry(currentZipCode) == 0) { // Look for the zip code first - if it's not in the list, add it and create a new embedded LL with the voter inside
 							zipList->addFront(currentZipCode, currentVoter);
-							cout << "Added to zip list!" << endl;
 					}
 					else { // If the zip code is already present, insert the voter into the existing embedded LL
 						zipList->insertEntry(currentZipCode, currentVoter);
-						cout << "Added to zip list!" << endl;
 					}
-					cout << "Current entries in zip list: " << zipList->getEntryNum() << endl;
 				}
 
 				fin.close();				
@@ -218,7 +201,6 @@ int main(int argc, char* args[]) {
 
 			continue;
 		}
-		cout << "Second parameter: " << param2 << endl;	
 
 		// There are actually no commands with two or three parametres, but this makes for a consistent and predictable tokenising process, making the program run smoother and stabler
 		if(param2 != NULL) {
@@ -226,7 +208,6 @@ int main(int argc, char* args[]) {
 			if(param3 == NULL) {
 				continue;
 			}
-			cout << "Third parameter: " << param3 << endl;
 		}
 
 		if(param3 != NULL) {
@@ -234,7 +215,6 @@ int main(int argc, char* args[]) {
 			if(param4 == NULL) {
 				continue;
 			}
-			cout << "Fourth parameter: " << param4 << endl;
 		}
 
 		if(param4 != NULL) {
@@ -242,25 +222,22 @@ int main(int argc, char* args[]) {
 			if(extraInput == NULL) { // The big one: insertion. Uses all four parameters, which are cast into the appropriate types before they are passed to the hash table
 
 				char* endptr;
-				int rin = int(strtol(param1, &endptr, 10));
+				int rin = int(strtol(param1, &endptr, 10)); // Cast these two into ints
 				int zipCode = int(strtol(param4, &endptr, 10));	
 
 				bool voted = false;
 
-				Voter voter(rin, param2, param3, zipCode, voted);
-
-				bool insertSuccess = false;
+				Voter voter(rin, param2, param3, zipCode, voted); // We can pass the char arrays straight from input
 
 				if(hashTable->lookup(rin, 0) == 1) {
 					cerr << "Error: voter already in system." << endl;
 				}
 				else {
-					hashTable->insert(rin, voter, insertSuccess);	
+					hashTable->insert(rin, voter);	
 					cout << "Voter inserted!" << endl;				
 				}				
 			}
 			else { // Can't have more than four parametres
-				cout << "Extra input: |" << extraInput << "|" << endl;
 				cerr << "Too many parameters. Please try again." << endl;
 				continue;				
 			}

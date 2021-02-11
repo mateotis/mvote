@@ -3,8 +3,6 @@
 #ifndef ZIPLIST_H
 #define ZIPLIST_H
 
-//#include <iostream>
-
 #include "mvote.h"
 #include "hashTable.h"
 
@@ -28,11 +26,11 @@ class ZipLLNode {
 
 	public:
 		~ZipLLNode() { // Need a separate destructor because we have dynamically allocated data in ZipLLNodes
-			cout << "In ZipLLNode destructor." << endl;
 			delete value;
 		}
 };
 
+// The main zip code-based linked list, stores ZipVoterLinkedLists in its nodes
 class ZipLinkedList {
 	private:
 		ZipLLNode* head;
@@ -42,7 +40,7 @@ class ZipLinkedList {
 		void removeFront();
 		void remove(int rin, int zip);
 		void displayAll();
-		bool findEntry(int zip);
+		bool findEntry(int zip); // These methods are all explained at their definition
 		bool findVoterInZip(int rin, int zip);
 		bool insertEntry(int zip, Voter voter);
 		void printZipEntries(int zip);

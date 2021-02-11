@@ -3,20 +3,18 @@
 #ifndef HASHTABLE_H
 #define HASHTABLE_H
 
-//#include <iostream>
-
 #include "mvote.h"
 
 using namespace std;
 
-// Linked list that the hash nodes point to, contains voter data - based on implementations in Data Structures labs
+// Linked list (and node) that the hash nodes point to, contains voter data - based on implementations in Data Structures labs
 class LLNode {
 	private:
 		Voter voter;
 		LLNode* next;
 
 		friend class HashLinkedList;
-		friend class ZipVoterLinkedList;
+		friend class ZipVoterLinkedList; // Since ZipVoterLinkedList inherits from HashLinkedList, we make the node compatible too
 };
 
 class HashLinkedList {
@@ -28,7 +26,7 @@ class HashLinkedList {
 		void removeFront();
 		void remove(int rin);
 		void displayAll();
-		bool findEntry(int rin, int lookupMode);
+		bool findEntry(int rin, int lookupMode); // Methods explained at their definition
 		Voter getVoter(int rin);
 
 		HashLinkedList() : head(NULL) {};
@@ -50,7 +48,7 @@ class HashLinkedList {
 		}
 };
 
-
+// Hash table node, holds the aforementioned linked lists, their key is the hash code
 class HashNode
 {
 	private:
@@ -72,13 +70,13 @@ class HashNode
 			this->value->displayAll();
 			return;
 		}
-		void insertVoter(Voter voter) {
+		void insertVoter(Voter voter) { // As can be seen, HashNode methods generally just pass the work to the linked lists which contain the voter data; this ensures modularity
 			this->value->addFront(voter);
 		}
 		int getListEntryNum() {
 			return this->value->getEntryNum();
 		}
-		bool findVoter(int rin, int lookupMode) {
+		bool findVoter(int rin, int lookupMode) { // Used to ensure an entry is present in the hash table and to sometimes register it
 			if(this->value->findEntry(rin, lookupMode) == 1) {
 				return 1;
 			}
@@ -86,7 +84,7 @@ class HashNode
 				return 0;
 			}
 		}
-		Voter getVoter(int rin) {
+		Voter getVoter(int rin) { // Returns the actual Voter object, used to get information from a specific voter
 			return this->value->getVoter(rin);
 		}
 		bool removeVoter(int rin) {
@@ -102,18 +100,13 @@ class HashNode
 		}
 
 		~HashNode() {
-			if(this->value->empty() == false) {
-				delete this->value; // HashLinkedList has a destructor which empties out the list before deletion; it also automatically calls the Voter destructors
-				cout << "This should only display when we are exiting the program!" << endl;
-			}
-			else { // Since we should've already cleaned up the entire linked list before we get to this pont, we can safely delete the list itself
-				delete this->value;
-			}
+
+			delete this->value; // HashLinkedList has a destructor which empties out the list before deletion; it also automatically calls the Voter destructors - so we can safely call delete here
 		}
 
 };
 
-// TO DO: fix potential size issues that mess up voter percentage calculation
+// The main hash table class, does much of the program's heavy lifting
 class HashTable
 {
 	private:
@@ -129,7 +122,7 @@ class HashTable
 			this->size = 0;
 		} 
 		int hashCode(const int key);
-		void insert(const int key, Voter value, bool& insertSuccess);
+		void insert(const int key, Voter value);
 		bool lookup(const int key, int lookupMode);
 		Voter getVoter(const int rin);
 
@@ -163,7 +156,6 @@ class HashTable
 
 		~HashTable() // Destructor, releases all dynamically allocated memory
 		{
-			cout << "Hash table destructor called." << endl;
 			int cnt = 0;
 			for(int i = 0; i < capacity; i++) {
 				if(nodeArray[i] != nullptr) { // Finds every node
