@@ -33,12 +33,14 @@ int main(int argc, char* args[]) {
 	char firstName[30], lastName[30]; // Generous estimates as to how long the names can get, since we have no way of telling beforehand
 	int rin, zipCode;
 
+	cout << "Welcome to mvote, your one-stop, comprehensive voter management program!\n\nWritten by Máté Hekfusz, this program was designed for both speed and portability, with lightning-fast operation and minimal reliance on external libraries.\n\nPlease wait while your data is processed. This should also be lightning-fast.\n" << endl;
+
 	// Running over the file once front to back to find how many lines there are
 	int lineCount = 0;
 	while (fin >> rin >> firstName >> lastName >> zipCode) { // We don't actually do anything with our variable assignments here, however this is the simplest/smoothest way to iterate over a standard format file
 		lineCount++;
 	}
-	cout << "File has " << lineCount << " lines." << endl;
+	cout << "File has " << lineCount << " lines.\n" << endl;
 	fin.close();
 
 	// READING DATA FROM SPECIFIED FILE INTO OUR DATA STRUCTURES
@@ -48,6 +50,7 @@ int main(int argc, char* args[]) {
 	HashTable* hashTable = new HashTable(lineCount * 2); // Dynamically generate hash table: double the size of the input file should give us enough space to work with as it reduces the load factor of the table
 	ZipLinkedList* zipList = new ZipLinkedList();
 
+	cout << "Inserting voter data into database...\n" << endl;
 	while (fin >> rin >> firstName >> lastName >> zipCode) // Since the format of each line is the same, we can tell the program exactly what is what
 	{ // Got the idea to use this from the ifstream documentation: http://www.cplusplus.com/reference/istream/istream/operator%3E%3E/
 		bool voted = false;		
@@ -59,7 +62,7 @@ int main(int argc, char* args[]) {
 
 	fin.close();
 
-	cout << hashTable->getSize() << " voters successfully inserted into hash table." << endl;
+	cout << hashTable->getSize() << " voters successfully inserted into the hash table.\n" << endl;
 
 	// PROCESSING USER INPUT AND EXECUTING COMMANDS
 	// Initialise and allocate memory for all potential user inputs: the longest command will have four parametres, anything extra should be dealt with appropriately
@@ -71,9 +74,11 @@ int main(int argc, char* args[]) {
 	char* param4 = new char[30];
 	char* extraInput = new char[30];
 
+	cout << "You can enter your commands in the below prompt. mvote has a range of functions, from voter insertion and registration to zip code based statistics, all to make your work easier.\n\nUse the 'man' command to access a quick reference about the commands available. Please read it before you begin operation. While mvote is prepared to handle malformed inputs and unusual commands, it would prefer not to. Thank you for your cooperation!\n" << endl;
+
 	while(true) {
 
-		cout << "Enter input: " << endl;
+		cout << "Enter your command: " << endl;
 
 		cin.getline(input, 100); // Turns out, you don't need strings to use getline! Found in the reference: http://www.cplusplus.com/reference/istream/istream/getline/
 
@@ -86,16 +91,14 @@ int main(int argc, char* args[]) {
 
 		param1 = strtok(NULL, " ");
 		if(param1 == NULL) { // Only one command - used for parameterless inputs, like v or perc
+			if(strcmp(command, "man") == 0) {
+				cout << "COMMANDS QUICK REFERENCE\n\n man - access this manual\n\n l <key> - lookup voter\n\n i <rin> <lname> <fname> <zip> - insert new voter\n\n d <rin> - delete voter\n\n r <rin> - register voter as having voted\n\n bv <fileofkeys> - bulk-vote for all the RINs in the specified file\n\n v - display number of people who have voted so far\n\n perc - display percentage of people who voted so far\n\n z <zipcode> - display all people who have voted in specified zip code\n\n o - produce a list of zip codes and voter numbers in them in descending order\n\n exit - gracefully terminate program\n" << endl;
+			}
 			if(strcmp(command, "exit") == 0) {
 				delete hashTable;
 				delete zipList;
 				delete[] input; // This is the only char array in this segment that always needs to be deleted - the rest sometimes cause a segfault if deleted manually
-/*				delete[] command;
-				delete[] param1;
-				delete[] param2;
-				delete[] param3;
-				delete[] param4;
-				delete[] extraInput;*/
+				cout << "Thank you for choosing mvote!" << endl;
 				exit(0);
 			}
 			if(strcmp(command, "v") == 0) { // Display how many people in total have voted
@@ -145,7 +148,7 @@ int main(int argc, char* args[]) {
 				int searchedRIN = int(strtol(param1, &endptr, 10));
 				Voter currentVoter = hashTable->getVoter(searchedRIN); // Fetch the voter before we remove it so we can get its zip
 
-				if(currentVoter.getRIN() == 0 && currentVoter.getZipCode() == 0) { // If we get a dummy voter return from getVoter() with these values, that means the voter wasn't found 
+				if(currentVoter.getRIN() == -1 && currentVoter.getZipCode() == -1) { // If we get a dummy voter return from getVoter() with these values, that means the voter wasn't found 
 					cerr << "Voter not found!" << endl;
 					continue;
 				}
@@ -153,6 +156,7 @@ int main(int argc, char* args[]) {
 				int currentZipCode = currentVoter.getZipCode(); // Get the zip
 
 				hashTable->lookup(searchedRIN, 2); // Calls lookup with lookupMode 2 - search & destroy
+				cout << "Voter deleted!" << endl;
 
 				if(zipList->findVoterInZip(searchedRIN, currentZipCode) == 0) { // First look for the voter in the zip list and only delete if they're actually there
 					continue;

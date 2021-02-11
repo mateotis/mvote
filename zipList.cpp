@@ -48,7 +48,7 @@ bool ZipLinkedList::findVoterInZip(int rin, int zip) { // Finds voter in zip lis
 	ZipLLNode* v = head;
 	while(v != NULL) {
 		if(v->zipCode == zip) { // Same process as findEntry() so far but we go a step further 
-			if(v->value->findEntry(rin, 0) == 1) { // Only return 1 if we actually found the voter under that zip
+			if(v->value->findEntry(rin, 2) == 1) { // Only return 1 if we actually found the voter under that zip
 				return 1;
 			}		
 		}

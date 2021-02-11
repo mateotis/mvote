@@ -24,6 +24,7 @@ void HashLinkedList::remove(int rin) { // Remove a voter with the given RIN from
 	LLNode* temp = head; // Temp variable to help keep list structure intact while removing; initially set to the head as that's the first case we look at
 
 	if(v->voter.getRIN() == rin) { // If this triggers, that means the very first entry (the head) is what we need to delete
+		cout << "Deleting " << v->voter.getFirstName() << " " << v->voter.getLastName() << endl;
 		head = temp->next; // We move the head to the next entry, then delete the old head
 		delete temp;
 		entryNum--; // Keeping accurate track of the number of entries in the table
@@ -37,6 +38,7 @@ void HashLinkedList::remove(int rin) { // Remove a voter with the given RIN from
 
 	while(v != NULL) {
 		if(v->next->voter.getRIN() == rin) { // Always looking one step ahead, since we can't iterate backwards (this being a singly linked list)
+			cout << "Deleting " << v->next->voter.getFirstName() << " " << v->next->voter.getLastName() << endl;
 			LLNode* newNext = v->next->next; // Save the to-be-deleted node's next
 			delete v->next; // Delete the offending node
 			v->next = newNext; // Connect the current node to the next valid one
@@ -69,9 +71,14 @@ bool HashLinkedList::findEntry(int rin, int lookupMode) { // As the name says, t
 	LLNode* v = head;
 	while(v != NULL) {
 		if(v->voter.getRIN() == rin) {
-			v->voter.getVoterInfo();
 			if(lookupMode == 1) { // Register the voter as having voted
 				v->voter.setVoted(1);
+				cout << v->voter.getFirstName() << " " << v->voter.getLastName() << " registered!" << endl;
+			}
+			else { // Only print the whole info if we're doing simple lookup
+				if(lookupMode != 2) { // Don't need to print the info extra when we're deleting
+					v->voter.getVoterInfo();
+				}
 			}
 			return 1;			
 		}
@@ -144,6 +151,7 @@ bool HashTable::lookup(const int key, int lookupMode) // A powerful function tha
 					delete nodeArray[hash];
 					nodeArray[hash] = nullptr;
 				}
+				return 1;
 			}
 		}
 		else if(lookupMode == 1) { // Register
@@ -163,6 +171,7 @@ bool HashTable::lookup(const int key, int lookupMode) // A powerful function tha
 		}
 		else { // Lookup
 			if(nodeArray[hash]->findVoter(key, lookupMode) == 0) {
+				cerr << "Voter not found!" << endl;
 				return 0;
 			}
 			else {
@@ -171,10 +180,10 @@ bool HashTable::lookup(const int key, int lookupMode) // A powerful function tha
 		}
 	}
 	else {
-		cout << "Voter not found!" << endl;
+		cerr << "Voter not found!" << endl;
 		return 0;
 	}
-	cout << "Voter not found!" << endl;
+	cerr << "Voter not found!" << endl;
 	return 0;
 }
 
@@ -185,7 +194,7 @@ Voter HashTable::getVoter(const int rin) { // Gets a specific Voter object, need
 		cerr << "Could not delete voter as it was not found in the database." << endl;
 		char dummyFN[30] = "DUMMY";
 		char dummyLN[30] = "VOTER";
-		Voter dummyVoter(0, dummyFN, dummyLN, 0, 0);
+		Voter dummyVoter(-1, dummyFN, dummyLN, -1, 0);
 		return dummyVoter;
 	}
 	else { // Otherwise, proceed to retrieving the voter from the linked list
