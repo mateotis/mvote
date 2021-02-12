@@ -4,7 +4,7 @@
 #define MVOTE_H
 
 #include<iostream>
-#include<cstring> // For strcpy, strcmp, strtok, and strtol; the actual string container is not used as per requirements
+#include<cstring> // For strncpy, strcmp, strtok, and strtol; the actual string container is not used as per requirements
 
 extern bool exitFlag; // Used in the Voter destructor, set when we're exiting the program
 
