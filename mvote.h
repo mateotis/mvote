@@ -6,6 +6,8 @@
 #include<iostream>
 #include<cstring> // For strcpy, strcmp, strtok, and strtol; the actual string container is not used as per requirements
 
+extern bool exitFlag; // Used in the Voter destructor, set when we're exiting the program
+
 using namespace std;
 
 class Voter {
@@ -17,10 +19,10 @@ class Voter {
 		bool voted;
 	public:
 		Voter() { // Default constructor, filled with dummy data
-			this->rin = 0;
+			this->rin = -1;
 			this->firstName;
 			this->lastName;
-			this->zipCode = 0;
+			this->zipCode = -1;
 			this->voted = false;
 		}
 
@@ -30,8 +32,8 @@ class Voter {
 			this->firstName = new char[30];
 			this->lastName = new char[30];
 
-			strncpy(this->firstName, inputFN, sizeof(this->firstName)); // Copy the content into the container char arrays; this ensures that they are all properly present
-			strncpy(this->lastName, inputLN, sizeof(this->lastName));
+			strncpy(this->firstName, inputFN, 30); // Copy the content into the container char arrays; this ensures that they are all properly present
+			strncpy(this->lastName, inputLN, 30);
 
 			this->rin = inputRIN;
 			this->zipCode = inputZip;
@@ -61,7 +63,12 @@ class Voter {
 			return;
 		}
 
-		~Voter() {}
+		~Voter() {
+			if(exitFlag == true) { // Ensures that we only delete the char arrays when we're quitting
+				delete[] this->firstName;
+				delete[] this->lastName;
+			}
+		}
 
 };
 

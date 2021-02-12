@@ -8,6 +8,8 @@
 
 using namespace std;
 
+bool exitFlag = false; // Global flag that's set to true when exiting, it lets us delete dynamically allocated memory in Voter objects properly
+
 int main(int argc, char* args[]) {
 
 	// PARSING COMMAND LINE ARGUMENTS
@@ -95,9 +97,11 @@ int main(int argc, char* args[]) {
 				cout << "COMMANDS QUICK REFERENCE\n\n man - access this manual\n\n l <key> - lookup voter\n\n i <rin> <lname> <fname> <zip> - insert new voter\n\n d <rin> - delete voter\n\n r <rin> - register voter as having voted\n\n bv <fileofkeys> - bulk-vote for all the RINs in the specified file\n\n v - display number of people who have voted so far\n\n perc - display percentage of people who voted so far\n\n z <zipcode> - display all people who have voted in specified zip code\n\n o - produce a list of zip codes and voter numbers in them in descending order\n\n exit - gracefully terminate program\n" << endl;
 			}
 			if(strcmp(command, "exit") == 0) {
+				exitFlag = true;
 				delete hashTable;
 				delete zipList;
-				delete[] input; // This is the only char array in this segment that always needs to be deleted - the rest sometimes cause a segfault if deleted manually
+				delete[] input; // This is the only char array in this segment that always needs to be deleted - the rest often cause crashes when manually deleted
+				input = NULL;			
 				cout << "Thank you for choosing mvote!" << endl;
 				exit(0);
 			}
@@ -127,7 +131,7 @@ int main(int argc, char* args[]) {
 				char* endptr;
 				int searchedRIN = int(strtol(param1, &endptr, 10));
 				if(hashTable->lookup(searchedRIN, 0) == 0 || hashTable->lookup(searchedRIN, 1) == 0) { // Check if the person we're trying to register is in fact NOT in the database OR has already voted
-					cerr << "Voter not found!" << endl;
+					cerr << "Voter not found or has already voted!" << endl;
 					continue;
 				} 
 				cout << "Voter status changed!" << endl;

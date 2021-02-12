@@ -144,8 +144,8 @@ void ZipLinkedList::getZipVoterTotals() { // Used for the o command - gets the z
 	int currentMaxNum = 0;
 	int currentMaxLoc = 0; // This saves the position of the highest found number/zip code pair in the 2D array, because we set the number to 0 after the inner loop is over to avoid counting it again on the next iteration
 
-	for(int i = 0; i < sizeof(zipListStats)/sizeof(zipListStats[0]); i++) { // Selection sort algorithm written from scratch - it's not particularly time-efficient (O(n^2)), but it's simple and it gets the job done
-		for(int j = 0; j < sizeof(zipListStats)/sizeof(zipListStats[0]); j++) {
+	for(unsigned int i = 0; i < sizeof(zipListStats)/sizeof(zipListStats[0]); i++) { // Selection sort algorithm written from scratch - it's not particularly time-efficient (O(n^2)), but it's simple and it gets the job done
+		for(unsigned int j = 0; j < sizeof(zipListStats)/sizeof(zipListStats[0]); j++) { // Casting these as unsigned to match the sizeof() number, plus they can never be negative anyway - caught this thanks to g++ with -Wall
 			if(zipListStats[j][1] > currentMaxNum) { // Update current maximum number of voters and the zip code they're in
 				currentMaxZip = zipListStats[j][0];
 				currentMaxNum = zipListStats[j][1];
